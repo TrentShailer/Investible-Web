@@ -24,13 +24,7 @@ import TableRowSkeleton from "../components/moderation/TableRowSkeleton";
 import { useSnackbar } from "notistack";
 
 export default function Moderation() {
-	const [TableData, SetTableData] = useState<LeaderboardRow[]>([
-		{ name: "Trent", portfolio_value: 43234234, id: "####" },
-		{ name: "Trent", portfolio_value: 43234234, id: "####" },
-		{ name: "Trent", portfolio_value: 43234234, id: "####" },
-		{ name: "Trent", portfolio_value: 43234234, id: "####" },
-		{ name: "Trent", portfolio_value: 43234234, id: "####" },
-	]);
+	const [TableData, SetTableData] = useState<LeaderboardRow[]>([]);
 	const [TableLoading, SetLoading] = useState(true);
 	const [ShowDeleteDialog, SetShowDeleteDialog] = useState(false);
 	const [DeleteTarget, SetDeleteTarget] = useState<LeaderboardRow | undefined | null>();
