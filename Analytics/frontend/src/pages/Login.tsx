@@ -8,7 +8,7 @@ import { useSnackbar } from "notistack";
 export default function Login() {
 	const [password, setPassword] = useState("");
 	const [helperText, setHelperText] = useState("");
-	const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+	const { enqueueSnackbar } = useSnackbar();
 
 	const Submit = () => {
 		setHelperText("");

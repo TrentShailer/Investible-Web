@@ -5,7 +5,7 @@ import { useSnackbar } from "notistack";
 import Home from "./pages/Home";
 
 function App() {
-	const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+	const { enqueueSnackbar } = useSnackbar();
 	if (window.innerWidth < 600) {
 		enqueueSnackbar("This site is not optimised for a mobile device.", { variant: "error" });
 	}

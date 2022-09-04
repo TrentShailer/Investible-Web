@@ -7,9 +7,9 @@ import General from "./analytics/General";
 import Moderation from "./Moderation";
 
 export default function Home() {
-	const [page, setPage] = useState(0);
+	const [page, setPage] = useState<number>();
 	const [Body, setBody] = useState(<></>);
-	const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+	const { enqueueSnackbar } = useSnackbar();
 
 	const onFocus = () => {
 		axios
@@ -35,6 +35,11 @@ export default function Home() {
 	};
 
 	useEffect(() => {
+		let storedPage = window.localStorage.getItem("page");
+		if (storedPage) {
+			setPage(parseInt(storedPage));
+		}
+
 		window.addEventListener("focus", onFocus);
 
 		return () => {
@@ -43,6 +48,9 @@ export default function Home() {
 	}, []);
 
 	useEffect(() => {
+		if (page !== undefined) {
+			window.localStorage.setItem("page", page.toString());
+		}
 		switch (page) {
 			case 0:
 				setBody(<Moderation />);
@@ -59,7 +67,7 @@ export default function Home() {
 	return (
 		<>
 			<MenuBar
-				page={page}
+				page={page ? page : 0}
 				onChange={(value: number) => {
 					setPage(value);
 				}}

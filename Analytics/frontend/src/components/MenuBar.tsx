@@ -3,7 +3,6 @@ import { Box, Button, Tab, Tabs } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import React, { useState } from "react";
 
 type Props = {
 	page: number;
@@ -11,7 +10,7 @@ type Props = {
 };
 
 export default function MenuBar({ page, onChange }: Props) {
-	const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+	const { enqueueSnackbar } = useSnackbar();
 	const logout = () => {
 		axios
 			.delete("/api/v1/session")
