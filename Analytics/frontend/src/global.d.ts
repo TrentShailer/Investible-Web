@@ -5,6 +5,7 @@ type LeaderboardRow = {
 };
 
 type PlayerCount = {
-	date: string;
-	players: number;
+	Date: string;
+	Players: number;
+	Contacted: number;
 };

@@ -61,6 +61,9 @@ export default function Home() {
 			case 2:
 				setBody(<Game />);
 				break;
+			default:
+				setBody(<Moderation />);
+				break;
 		}
 	}, [page]);
 
