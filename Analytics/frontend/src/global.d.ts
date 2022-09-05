@@ -16,7 +16,7 @@ type CategoryValue = {
 };
 
 type GameAnalytics = {
-	group: string;
+	label: string;
 	allPlayers: number;
 	topPlayers: number;
 };

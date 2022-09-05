@@ -7,16 +7,16 @@ import { BarChart, CartesianGrid, XAxis, YAxis, Bar, LabelList, Legend } from "r
 import InfoCard from "../../InfoCard";
 
 /* [
-	{ group: "Low Risk", allPlayers: 20, topPlayers: 12 },
-	{ group: "High Risk", allPlayers: 35, topPlayers: 48 },
-	{ group: "Insurance", allPlayers: 45, topPlayers: 40 },
+	{ label: "Low Risk", allPlayers: 20, topPlayers: 12 },
+	{ label: "High Risk", allPlayers: 35, topPlayers: 48 },
+	{ label: "Insurance", allPlayers: 45, topPlayers: 40 },
 ] */
 export default function BlockDistribution() {
 	const [data, setData] = useState<GameAnalytics[] | undefined>();
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/blockdistribution")
+			.get("/api/v1/blockdistribution")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);

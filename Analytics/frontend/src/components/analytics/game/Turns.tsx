@@ -5,14 +5,14 @@ import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import { BarChart, CartesianGrid, XAxis, YAxis, Bar, LabelList, Legend } from "recharts";
 import InfoCard from "../../InfoCard";
-/* [{ group: "Average Number of Turns", allPlayers: 52, topPlayers: 162 }] */
+/* [{ label: "Average Number of Turns", allPlayers: 52, topPlayers: 162 }] */
 
 export default function Turns() {
 	const [data, setData] = useState<GameAnalytics[] | undefined>();
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/turns")
+			.get("/api/v1/turns")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);

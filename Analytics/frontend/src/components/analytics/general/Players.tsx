@@ -47,7 +47,7 @@ export default function Players() {
 
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/general/players")
+			.get("/api/v1/players")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);

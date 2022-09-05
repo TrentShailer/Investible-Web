@@ -6,14 +6,14 @@ import React, { useEffect, useState } from "react";
 import { BarChart, CartesianGrid, XAxis, YAxis, Bar, Label, LabelList, Legend } from "recharts";
 import InfoCard from "../../InfoCard";
 
-/* [{ group: "Average Game Length", allPlayers: 512.4, topPlayers: 2059.9 }] */
+/* [{ label: "Average Game Length", allPlayers: 512.4, topPlayers: 2059.9 }] */
 export default function GameTime() {
 	const [data, setData] = useState<GameAnalytics[] | undefined>();
 
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/gametime")
+			.get("/api/v1/gametime")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);

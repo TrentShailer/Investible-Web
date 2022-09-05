@@ -13,7 +13,7 @@ export default function Games() {
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/general/games")
+			.get("/api/v1/games")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);

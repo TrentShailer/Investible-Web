@@ -36,7 +36,7 @@ export default function EndReason() {
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/general/endreason")
+			.get("/api/v1/endreason")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);

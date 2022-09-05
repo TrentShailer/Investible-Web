@@ -5,7 +5,7 @@ import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import { BarChart, CartesianGrid, XAxis, YAxis, Bar, LabelList, Legend } from "recharts";
 import InfoCard from "../../InfoCard";
-/* { group: "Average Portfolio Value", allPlayers: 512462, topPlayers: 1240570 }, */
+/* { label: "Average Portfolio Value", allPlayers: 512462, topPlayers: 1240570 }, */
 
 export default function PortfolioValue() {
 	const [data, setData] = useState<GameAnalytics[] | undefined>();
@@ -13,7 +13,7 @@ export default function PortfolioValue() {
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/portfoliovalue")
+			.get("/api/v1/portfoliovalue")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);

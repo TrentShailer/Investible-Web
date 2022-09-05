@@ -5,6 +5,7 @@ import fastifySession from "@fastify/session";
 import connectPgSimple from "connect-pg-simple";
 import fastifyCookie, { FastifyCookieOptions } from "@fastify/cookie";
 import path from "path";
+import fastifyAutoload from "@fastify/autoload";
 
 const PGStore = connectPgSimple(fastifySession as any);
 
@@ -15,26 +16,53 @@ const fastify = Fastify({
 fastify.register(fastifyCookie, {
 	parseOptions: { signed: true },
 } as FastifyCookieOptions);
-
-fastify.register(fastifyPostgres, {
-	connectionString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@database:5432/${process.env.POSTGRES_DATABASE}`,
-});
-
-if (process.env.SESSION_SECRET) {
-	fastify.register(fastifySession, {
-		cookie: { maxAge: 1000 * 60 * 60 * 24 },
-		secret: process.env.SESSION_SECRET,
-		rolling: true,
-		store: new PGStore({ pool: fastify.pg.pool }) as any,
+/*
+fastify
+	.register(fastifyPostgres, {
+		connectionString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@database:5432/${process.env.POSTGRES_DATABASE}`,
+	})
+	.then(() => {
+		if (process.env.SESSION_SECRET) {
+			fastify.register(fastifySession, {
+				cookie: { maxAge: 1000 * 60 * 60 * 24 },
+				secret: process.env.SESSION_SECRET,
+				rolling: true,
+				store: new PGStore({ pool: fastify.pg.pool }) as any,
+			});
+		} else {
+			console.error("Session secret not found");
+			process.exit(1);
+		}
 	});
-} else {
-	console.error("Session secret not found");
-	process.exit(1);
-}
+ */
+
+fastify.register(fastifySession, {
+	cookie: { maxAge: 1000 * 60 * 60 * 24 },
+	secret: "OIHwkzsIKDG5icI5nbn81IecVpDAaC92hX1tjhedj7ak4aUxbfJTm1TWuVl34cUX",
+	rolling: true,
+});
 
 fastify.register(fastifyStatic, {
 	root: path.join(__dirname, "frontend"),
 });
+
+fastify.get("/", async (req, res) => {
+	if (!req.session.authenticated) {
+		return res.redirect("/login");
+	}
+
+	return res.sendFile("index.html", path.join(__dirname, "frontend"));
+});
+
+fastify.get("/login", async (req, res) => {
+	if (req.session.authenticated) {
+		return res.redirect("/");
+	}
+
+	return res.sendFile("index.html", path.join(__dirname, "frontend"));
+});
+
+fastify.register(fastifyAutoload, { dir: path.join(__dirname, "plugins") });
 
 // Start Server
 fastify.listen({ port: 8080, host: "0.0.0.0" }, (err, address) => {

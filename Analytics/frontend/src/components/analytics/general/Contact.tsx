@@ -30,7 +30,7 @@ export default function Contact() {
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/general/contact")
+			.get("/api/v1/contact")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);
