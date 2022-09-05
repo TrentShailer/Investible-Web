@@ -29,7 +29,9 @@ export default function Home() {
 						});
 					}
 				} else {
-					enqueueSnackbar(error, { variant: "error" });
+					enqueueSnackbar("Failed to get authentication status: " + error, {
+						variant: "error",
+					});
 				}
 			});
 	};

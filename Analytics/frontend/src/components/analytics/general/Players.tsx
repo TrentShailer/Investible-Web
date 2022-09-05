@@ -1,6 +1,8 @@
-import { Paper, Typography } from "@mui/material";
+import { CircularProgress, Paper, Skeleton, Typography } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
-import React, { useState } from "react";
+import axios from "axios";
+import { useSnackbar } from "notistack";
+import React, { useEffect, useState } from "react";
 import {
 	Area,
 	AreaChart,
@@ -15,8 +17,7 @@ import {
 	YAxis,
 } from "recharts";
 
-export default function Players() {
-	const [data, setData] = useState<PlayerCount[]>([
+/* [
 		{ Date: "3 Aug", Players: 50, Contacted: 50 / 10 },
 		{ Date: "4 Aug", Players: 3000, Contacted: 3000 / 10 },
 		{ Date: "5 Aug", Players: 2000, Contacted: 2000 / 10 },
@@ -38,48 +39,75 @@ export default function Players() {
 		{ Date: "21 Aug", Players: 1615, Contacted: 1615 / 10 },
 		{ Date: "22 Aug", Players: 1851, Contacted: 1851 / 10 },
 		{ Date: "23 Aug", Players: 1488, Contacted: 1488 / 10 },
-	]);
+	] */
+
+export default function Players() {
+	const [data, setData] = useState<PlayerCount[] | undefined>();
+	const { enqueueSnackbar } = useSnackbar();
+
+	useEffect(() => {
+		axios
+			.get("/api/v1/analytics/general/players")
+			.then((response) => {
+				if (response.status === 200) {
+					setData(response.data);
+				} else {
+					throw new Error("Unexpected Response: " + response.status);
+				}
+			})
+			.catch((error) => {
+				if (axios.isAxiosError(error)) {
+					enqueueSnackbar("Failed to get player data: " + error.message, {
+						variant: "error",
+					});
+				} else {
+					enqueueSnackbar("Failed to get player data: " + error, { variant: "error" });
+				}
+			});
+	}, []);
 
 	return (
 		<Paper elevation={2} sx={{ padding: 2, marginTop: 4 }}>
 			<Typography variant="h5" mb={2} textAlign={"center"}>
 				Player Count
 			</Typography>
-
-			<Grid2 container justifyContent="center">
-				<ResponsiveContainer width={"100%"} height={300}>
-					<LineChart margin={{ top: 10, right: 30 }} data={data}>
-						<XAxis interval={1} dataKey={"Date"} />
-						<YAxis />
-						<ReferenceLine x={"17 Aug"} />
-						<ReferenceLine x={"10 Aug"} />
-						<Tooltip
-							wrapperStyle={{
-								outlineStyle: "none",
-							}}
-						/>
-
-						<CartesianGrid strokeDasharray="3 3" />
-						<Line
-							type="monotone"
-							dataKey={"Players"}
-							stroke="#8884d8"
-							fillOpacity={0.5}
-							fill="#8884d8"
-							dot={true}
-						/>
-						<Line
-							type="monotone"
-							dataKey={"Contacted"}
-							stroke="#82ca9d"
-							fillOpacity={0.5}
-							fill="#82ca9d"
-							dot={true}
-						/>
-						<Legend verticalAlign="bottom" height={36} />
-					</LineChart>
-				</ResponsiveContainer>
-			</Grid2>
+			{data === undefined ? (
+				<Skeleton variant="rounded" width={"100%"} height={300} />
+			) : (
+				<Grid2 container justifyContent="center">
+					<ResponsiveContainer width={"100%"} height={300}>
+						<LineChart margin={{ top: 10, right: 30 }} data={data}>
+							<XAxis interval={1} dataKey={"Date"} />
+							<YAxis />
+							<ReferenceLine x={"17 Aug"} />
+							<ReferenceLine x={"10 Aug"} />
+							<Tooltip
+								wrapperStyle={{
+									outlineStyle: "none",
+								}}
+							/>
+							<CartesianGrid strokeDasharray="3 3" />
+							<Line
+								type="monotone"
+								dataKey={"Players"}
+								stroke="#8884d8"
+								fillOpacity={0.5}
+								fill="#8884d8"
+								dot={true}
+							/>
+							<Line
+								type="monotone"
+								dataKey={"Contacted"}
+								stroke="#82ca9d"
+								fillOpacity={0.5}
+								fill="#82ca9d"
+								dot={true}
+							/>
+							<Legend verticalAlign="bottom" height={36} />
+						</LineChart>
+					</ResponsiveContainer>
+				</Grid2>
+			)}
 		</Paper>
 	);
 }

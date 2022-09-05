@@ -1,6 +1,8 @@
-import { Typography } from "@mui/material";
+import { Skeleton, Typography } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
-import React, { useState } from "react";
+import axios from "axios";
+import { useSnackbar } from "notistack";
+import React, { useEffect, useState } from "react";
 import {
 	Bar,
 	BarChart,
@@ -19,13 +21,42 @@ import InfoCard from "../../InfoCard";
 
 const colours = ["#82ca9d", "#8884d8", "#81D4FA", "#EF9A9A"];
 
-export default function EndReason() {
-	const [data, setData] = useState([
+/*
+[
 		{ name: "Unstable", value: 9.6 },
 		{ name: "Poor", value: 52.9 },
 		{ name: "Quit to Main Menu", value: 0.7 },
 		{ name: "Gave Up", value: 36.8 },
-	]);
+	]
+ */
+
+export default function EndReason() {
+	const [data, setData] = useState<CategoryValue[] | undefined>();
+
+	const { enqueueSnackbar } = useSnackbar();
+	useEffect(() => {
+		axios
+			.get("/api/v1/analytics/general/endreason")
+			.then((response) => {
+				if (response.status === 200) {
+					setData(response.data);
+				} else {
+					throw new Error("Unexpected Response: " + response.status);
+				}
+			})
+			.catch((error) => {
+				if (axios.isAxiosError(error)) {
+					enqueueSnackbar("Failed to get end reason data: " + error.message, {
+						variant: "error",
+					});
+				} else {
+					enqueueSnackbar("Failed to get end reason data: " + error, {
+						variant: "error",
+					});
+				}
+			});
+	}, []);
+
 	return (
 		<InfoCard>
 			<Typography variant="h5" textAlign={"center"}>
@@ -33,29 +64,33 @@ export default function EndReason() {
 			</Typography>
 
 			<Grid2 container justifyContent="center">
-				<PieChart width={300} height={220}>
-					<Pie
-						data={data}
-						nameKey="name"
-						dataKey="value"
-						cx="50%"
-						cy="50%"
-						innerRadius={60}
-						outerRadius={80}>
-						<LabelList
-							style={{ stroke: "none", fontSize: 18, fontWeight: 700 }}
+				{data === undefined ? (
+					<Skeleton sx={{ marginTop: 1 }} variant="circular" width={160} height={160} />
+				) : (
+					<PieChart width={300} height={220}>
+						<Pie
+							data={data}
+							nameKey="name"
 							dataKey="value"
-							position="outside"
-							formatter={(v: any) => {
-								return `${v}%`;
-							}}
-						/>
-						{data.map((entry, index) => (
-							<Cell key={`cell-${index}`} fill={colours[index]} />
-						))}
-					</Pie>
-					<Legend />
-				</PieChart>
+							cx="50%"
+							cy="50%"
+							innerRadius={60}
+							outerRadius={80}>
+							<LabelList
+								style={{ stroke: "none", fontSize: 18, fontWeight: 700 }}
+								dataKey="value"
+								position="outside"
+								formatter={(v: any) => {
+									return `${v}%`;
+								}}
+							/>
+							{data.map((entry, index) => (
+								<Cell key={`cell-${index}`} fill={colours[index]} />
+							))}
+						</Pie>
+						<Legend />
+					</PieChart>
+				)}
 			</Grid2>
 		</InfoCard>
 	);
