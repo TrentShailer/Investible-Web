@@ -2,10 +2,8 @@ import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyPostgres from "@fastify/postgres";
 import fastifyFormbody from "@fastify/formbody";
+import fastifyAutoload from "@fastify/autoload";
 import path from "path";
-
-import leaderboardRoute from "./routes/leaderboard/leaderboard";
-import analyticsRoute from "./routes/analytics/analytics";
 
 const fastify = Fastify({
 	logger: false,
@@ -28,9 +26,7 @@ fastify.register(fastifyStatic, {
 	},
 });
 
-// Register Routes
-fastify.register(leaderboardRoute);
-fastify.register(analyticsRoute);
+fastify.register(fastifyAutoload, { dir: path.join(__dirname, "plugins") });
 
 // Start Server
 fastify.listen({ port: 8080, host: "0.0.0.0" }, (err, address) => {

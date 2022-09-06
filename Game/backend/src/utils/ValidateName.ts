@@ -1,4 +1,3 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import Filter from "bad-words";
 const filter = new Filter();
 
@@ -22,16 +21,4 @@ function ValidateName(name: string): ValidName {
 	return { valid: true };
 }
 
-async function Handler(
-	req: FastifyRequest<{ Params: GET_validname_Params }>,
-	res: FastifyReply,
-	fastify: FastifyInstance
-) {
-	let name = req.params.name;
-
-	return res.send(ValidateName(name));
-}
-
-export default Handler;
-
-export { ValidateName };
+export default ValidateName;

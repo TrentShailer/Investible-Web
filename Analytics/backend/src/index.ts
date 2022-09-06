@@ -16,7 +16,7 @@ const fastify = Fastify({
 fastify.register(fastifyCookie, {
 	parseOptions: { signed: true },
 } as FastifyCookieOptions);
-/*
+
 fastify
 	.register(fastifyPostgres, {
 		connectionString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@database:5432/${process.env.POSTGRES_DATABASE}`,
@@ -34,13 +34,6 @@ fastify
 			process.exit(1);
 		}
 	});
- */
-
-fastify.register(fastifySession, {
-	cookie: { maxAge: 1000 * 60 * 60 * 24 },
-	secret: "OIHwkzsIKDG5icI5nbn81IecVpDAaC92hX1tjhedj7ak4aUxbfJTm1TWuVl34cUX",
-	rolling: true,
-});
 
 fastify.register(fastifyStatic, {
 	root: path.join(__dirname, "frontend"),

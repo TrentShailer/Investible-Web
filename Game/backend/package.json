@@ -15,10 +15,12 @@
 		"start": "node dist/index"
 	},
 	"dependencies": {
+		"@fastify/autoload": "^5.3.1",
 		"@fastify/formbody": "^7.1.0",
 		"@fastify/postgres": "^5.1.0",
 		"@fastify/static": "^6.5.0",
 		"bad-words": "^3.0.4",
+		"date-fns": "^2.29.2",
 		"fastify": "^4.5.3",
 		"pg": "^8.8.0",
 		"uuid": "^8.3.2"

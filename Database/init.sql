@@ -1,23 +1,45 @@
+
+CREATE TABLE "player" (
+	"id" UUID PRIMARY KEY NOT NULL,
+	"mobile" BOOLEAN NOT NULL,
+	"clicked_contact" BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE "competition" (
+	"id" UUID PRIMARY KEY NOT NULL,
+	"start_date" TIMESTAMPZ NOT NULL,
+	"end_date" TIMESTAMPZ NOT NULL,
+	"details" VARCHAR NOT NULL,
+	"final_leaderboard" JSONB
+);
+
 CREATE TABLE "leaderboard" (
 	"id" UUID PRIMARY KEY NOT NULL,
 	"name" VARCHAR NOT NULL,
 	"portfolio_value" INT NOT NULL,
-	"timestamp" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	"email" VARCHAR,
+	"game_id" UUID NOT NULL,
+	"player_id" UUID UNIQUE NOT NULL,
+	CONSTRAINT "FK_game_id" FOREIGN KEY("game_id") REFERENCES "player"("id"),
+	CONSTRAINT "FK_player_id" FOREIGN KEY("player_id") REFERENCES "game"("id")
 );
 CREATE INDEX "IDX_leaderboard_portfolio_value" ON "leaderboard" ("portfolio_value");
 
-CREATE TABLE "analytics" (
-	"session_id" UUID PRIMARY KEY NOT NULL,
-	"user_id" UUID,
+CREATE TABLE "game" (
+	"id" UUID PRIMARY KEY NOT NULL,
+	"player_id" UUID,
 	"game_version" VARCHAR,
-	"session_end_reason" INT,
+	"game_end_reason" INT,
 	"game_time" FLOAT,
+	"positive_event_count" INT,
+	"negative_event_count" INT,
 	"portfolio_value" INT,
 	"insurance_count" INT,
 	"low_risk_count" INT,
 	"high_risk_count" INT,
-	"clicked_contact" BOOLEAN,
-	"timestamp" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	"turns" INT,
+	"timestamp" TIMESTAMPZ DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT "FK_player_id" FOREIGN KEY("player_id") REFERENCES "player"
 );
 
 CREATE TABLE "session" (
