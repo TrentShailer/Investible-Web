@@ -9,11 +9,11 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				"SELECT name, portfolio_value FROM leaderboard ORDER BY portfolio_value DESC LIMIT 10;"
 			);
 
-			return res.send(result.rows);
+			return res.status(200).send(result.rows);
 		} catch (error) {
 			console.log("Error occured at GET /api/v1/leaderboard/");
 			console.error(error);
-			return res.send(500);
+			return res.status(500).send();
 		}
 	});
 }

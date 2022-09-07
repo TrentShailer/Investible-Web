@@ -18,19 +18,19 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				"SELECT start_date, end_date, details FROM competition WHERE CURRENT_TIMESTAMP > start_date AND CURRENT_TIMESTAMP < end_date;"
 			);
 			if (result.rowCount === 0) {
-				return res.send(404);
+				return res.status(404).send();
 			} else {
 				let row = result.rows[0];
 				let start_date = format(row.start_date, "haaa, do MMM yyyy, O");
 				let end_date = format(row.end_date, "haaa, do MMM yyyy, O");
 
-				return res.send({ start_date, end_date, details: row.details });
+				return res.status(200).send({ start_date, end_date, details: row.details });
 			}
 		} catch (error) {
 			console.log("Error occured at GET /api/v1/compeition/ongoing");
 			console.error(error);
 
-			return res.send(500);
+			return res.status(500).send();
 		}
 	});
 }

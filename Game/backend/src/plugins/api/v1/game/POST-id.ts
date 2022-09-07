@@ -7,10 +7,11 @@ interface Params {
 interface Body {
 	game_secret: string;
 	player_id: string;
+	game_id: string;
 	game_version: string;
 	game_end_reason: number;
 	game_time: string;
-	postive_event_count: number;
+	positive_event_count: number;
 	negative_event_count: number;
 	portfolio_value: number;
 	insurance_count: number;
@@ -47,7 +48,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 					req.body.game_version,
 					req.body.game_end_reason,
 					req.body.game_time,
-					req.body.postive_event_count,
+					req.body.positive_event_count,
 					req.body.negative_event_count,
 					req.body.portfolio_value,
 					req.body.insurance_count,
@@ -57,15 +58,12 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				]
 			);
 
-			return res.send(200);
+			return res.status(200).send();
 		} catch (error) {
 			console.log("Error occured at POST /api/v1/game/:id");
 			console.error(error);
-			const { game_secret, ...body } = req.body;
-			console.log("Body: " + body);
-			console.log("Params: " + req.params);
 
-			return res.send(500);
+			return res.status(500).send();
 		}
 	});
 }

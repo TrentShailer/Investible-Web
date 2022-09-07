@@ -13,16 +13,15 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			);
 
 			if (result.rowCount === 0) {
-				return res.send(404);
+				return res.status(404).send();
 			} else {
-				return res.send(200);
+				return res.status(200).send();
 			}
 		} catch (error) {
 			console.log("Error occured in PUT /api/v1/player/:id/clicked_contact");
 			console.error(error);
-			console.log("Params: " + req.params);
 
-			return res.send(500);
+			return res.status(500).send();
 		}
 	});
 }
