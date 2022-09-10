@@ -10,11 +10,11 @@ async function plugin(fastify: FastifyInstance, options: any) {
 		if (process.env.ANALYTICS_PASSWORD_HASH) {
 			if (await verify(process.env.ANALYTICS_PASSWORD_HASH, req.body.password)) {
 				req.session.authenticated = true;
-				return res.send(200);
+				return res.status(200).send();
 			}
-			return res.send(401);
+			return res.status(401).send();
 		}
-		return res.send(500);
+		return res.status(500).send();
 	});
 }
 

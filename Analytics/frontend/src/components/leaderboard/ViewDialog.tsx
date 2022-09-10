@@ -6,12 +6,6 @@ import {
 	DialogContent,
 	DialogTitle,
 	Divider,
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableRow,
-	TextField,
 	Typography,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
@@ -89,8 +83,8 @@ export default function ViewDialog({ Close, Target }: Props) {
 						<InfoGrid
 							titles={["Device", "Clicked Contact"]}
 							values={[
-								data.player_info.mobile ? "Mobile" : "Desktop",
-								data.player_info.clicked_contact ? "Yes" : "No",
+								data.mobile_device ? "Mobile" : "Desktop",
+								data.clicked_contact ? "Yes" : "No",
 							]}
 						/>
 						<Divider sx={{ marginBottom: 2, marginTop: 1 }}>
@@ -100,7 +94,7 @@ export default function ViewDialog({ Close, Target }: Props) {
 						</Divider>
 						<InfoGrid
 							titles={["Timestamp", "Game Version"]}
-							values={[data.game_info.timestamp, data.game_info.game_version]}
+							values={[data.timestamp, data.game_version]}
 						/>
 						<Typography mt={1} color={grey[500]} variant="subtitle2">
 							These should match.
@@ -109,33 +103,30 @@ export default function ViewDialog({ Close, Target }: Props) {
 							titles={["Leaderboard Portfolio Value", "Game Portfolio Value"]}
 							values={[
 								"$" + data.portfolio_value.toLocaleString("en-US"),
-								"$" + data.game_info.portfolio_value.toLocaleString("en-US"),
+								"$" + data.game_portfolio_value!.toLocaleString("en-US"),
 							]}
 						/>
 						<InfoGrid
 							titles={["Turns", "Game Length"]}
-							values={[
-								data.game_info.turns.toString(),
-								data.game_info.game_time.toFixed(2) + "s",
-							]}
+							values={[data.turns!.toString(), data.game_time!.toFixed(2) + "s"]}
 						/>
 						<InfoGrid
 							titles={["Positive Event Count", "Negative Event Count"]}
 							values={[
-								data.game_info.positive_event_count.toString(),
-								data.game_info.negative_event_count.toString(),
+								data.positive_event_count!.toString(),
+								data.negative_event_count!.toString(),
 							]}
 						/>
 						<InfoGrid
 							titles={["Insurance Count", "High Risk Count"]}
 							values={[
-								data.game_info.insurance_count.toString(),
-								data.game_info.high_risk_count.toString(),
+								data.insurance_count!.toString(),
+								data.high_risk_count!.toString(),
 							]}
 						/>
 						<InfoGrid
 							titles={["Low Risk Count", ""]}
-							values={[data.game_info.low_risk_count.toString(), ""]}
+							values={[data.low_risk_count!.toString(), ""]}
 						/>
 					</Box>
 				)}

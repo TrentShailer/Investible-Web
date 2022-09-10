@@ -4,9 +4,9 @@ async function plugin(fastify: FastifyInstance, options: any) {
 	fastify.delete("/session", async (req, res) => {
 		req.session.destroy((error) => {
 			if (error) {
-				return res.send(500);
+				return res.status(500).send();
 			} else {
-				return res.send(200);
+				return res.status(200).send();
 			}
 		});
 	});

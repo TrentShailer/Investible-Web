@@ -21,7 +21,7 @@ export default function DeviceBreakdown() {
 
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/general/DBbreakdown")
+			.get("/api/v1/analytics/general/DeviceBreakdown")
 			.then((response) => {
 				setData(response.data);
 			})

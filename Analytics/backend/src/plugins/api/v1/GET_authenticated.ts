@@ -3,10 +3,10 @@ import { FastifyInstance } from "fastify";
 async function plugin(fastify: FastifyInstance, options: any) {
 	fastify.get("/authenticated", async (req, res) => {
 		if (req.session.authenticated) {
-			return res.send(200);
+			return res.status(200).send();
 		}
 
-		return res.send(401);
+		return res.status(401).send();
 	});
 }
 

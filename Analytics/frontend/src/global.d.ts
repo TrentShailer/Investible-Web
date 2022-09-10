@@ -5,34 +5,29 @@ type LeaderboardRow = {
 };
 
 type DetailedLeaderboardRow = {
-	id: string;
+	leaderboard_id: string;
 	name: string;
 	portfolio_value: number;
 	first_name: string | null;
 	last_name: string | null;
 	email: string | null;
 	mobile: string | null;
-	player_info: PlayerInfo;
-	game_info: GameInfo;
-};
-
-type GameInfo = {
-	game_version: string;
-	game_end_reason: string;
-	game_time: number;
-	positive_event_count: number;
-	negative_event_count: number;
-	portfolio_value: number;
-	insurance_count: number;
-	low_risk_count: number;
-	high_risk_count: number;
-	turns: number;
+	agree: boolean | null;
+	player_id: string;
+	mobile_device: boolean;
+	clicked_contact: string;
+	game_id: string;
+	game_version: string | null;
+	game_end_reason: string | null;
+	game_time: number | null;
+	positive_event_count: number | null;
+	negative_event_count: number | null;
+	game_portfolio_value: number | null;
+	insurance_count: number | null;
+	low_risk_count: number | null;
+	high_risk_count: number | null;
+	turns: number | null;
 	timestamp: string;
-};
-
-type PlayerInfo = {
-	mobile: boolean;
-	clicked_contact: boolean;
 };
 
 type PlayerCount = {
