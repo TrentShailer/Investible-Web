@@ -8,17 +8,20 @@ import InfoCard from "../../InfoCard";
 
 const colours = ["#82ca9d", "#8884d8"];
 
-/* [
-	{ name: "Clicked Contact", value: 10 },
-	{ name: "Didn't Click Contact", value: 90 },
-] */
-export default function Contact() {
+/*
+[
+	{ name: "Mobile", value: 72.6 },
+	{ name: "Desktop", value: 27.4 },
+]
+ */
+
+export default function DeviceBreakdown() {
 	const { enqueueSnackbar } = useSnackbar();
 	const [data, setData] = useState<CategoryValue[] | undefined>();
 
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/general/contact")
+			.get("/api/v1/analytics/general/DBbreakdown")
 			.then((response) => {
 				setData(response.data);
 			})
@@ -32,17 +35,20 @@ export default function Contact() {
 					}
 				}
 
-				enqueueSnackbar("Failed to get contact analytics. Please report this.", {
-					variant: "error",
-				});
+				enqueueSnackbar(
+					"Failed to get device breakdown analytics. Please contact an admin.",
+					{ variant: "error" }
+				);
 				console.error(error);
 			});
-	}, []);
+	}, [enqueueSnackbar]);
+
 	return (
 		<InfoCard>
 			<Typography variant="h5" textAlign={"center"}>
-				% Clicked Contact
+				Device Breakdown
 			</Typography>
+
 			<Grid2 container justifyContent="center">
 				{data === undefined ? (
 					<Skeleton sx={{ marginTop: 2 }} variant="circular" width={180} height={180} />

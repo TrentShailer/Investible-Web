@@ -5,59 +5,65 @@ import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import { BarChart, CartesianGrid, XAxis, YAxis, Bar, LabelList, Legend } from "recharts";
 import InfoCard from "../../InfoCard";
-/* { label: "Average Portfolio Value", allPlayers: 512462, topPlayers: 1240570 }, */
 
-export default function PortfolioValue() {
+/* [
+	{ label: "Low Risk", allPlayers: 20, topPlayers: 12 },
+	{ label: "High Risk", allPlayers: 35, topPlayers: 48 },
+	{ label: "Insurance", allPlayers: 45, topPlayers: 40 },
+] */
+export default function BlockDistributionComparison() {
 	const [data, setData] = useState<GameAnalytics[] | undefined>();
-
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/portfoliovalue")
+			.get("/api/v1/analytics/game/comparison/BlockDistribution")
 			.then((response) => {
-				if (response.status === 200) {
-					setData(response.data);
-				} else {
-					throw new Error("Unexpected Response: " + response.status);
-				}
+				setData(response.data);
 			})
 			.catch((error) => {
 				if (axios.isAxiosError(error)) {
-					enqueueSnackbar("Failed to get portfolio value data: " + error.message, {
-						variant: "error",
-					});
-				} else {
-					enqueueSnackbar("Failed to get portfolio value data: " + error, {
-						variant: "error",
-					});
+					if (error.status === "401") {
+						enqueueSnackbar("You are not logged in", {
+							variant: "error",
+						});
+						return;
+					}
 				}
+
+				enqueueSnackbar("Failed to get block distribution analytics. Please report this.", {
+					variant: "error",
+				});
+				console.error(error);
 			});
 	}, []);
 
+	useEffect(() => {
+		setTimeout(() => {}, 570);
+	}, []);
 	return (
 		<InfoCard>
 			<Typography variant="h5" textAlign={"center"}>
-				Average Portfolio Value
+				Average Block Type
 			</Typography>
-
 			<Grid2 container justifyContent="center">
 				{data === undefined ? (
-					<Skeleton variant="rectangular" width={200} height={220} />
+					<Skeleton variant="rectangular" width={300} height={220} />
 				) : (
-					<BarChart width={200} height={220} data={data}>
-						<XAxis dataKey="group" />
+					<BarChart width={300} height={220} data={data}>
+						<XAxis dataKey="label" />
+						<Legend />
 						<Bar name="All Players" dataKey="allPlayers" fill="#8884d8">
 							<LabelList
 								style={{
 									fill: "#000",
 									stroke: "none",
-									fontSize: 18,
+									fontSize: 16,
 									fontWeight: 700,
 								}}
 								dataKey="allPlayers"
 								position="center"
-								formatter={(v: number) => {
-									return `$${v.toLocaleString("en-US")}`;
+								formatter={(v: any) => {
+									return `${v}%`;
 								}}
 							/>
 						</Bar>
@@ -66,17 +72,16 @@ export default function PortfolioValue() {
 								style={{
 									fill: "#000",
 									stroke: "none",
-									fontSize: 18,
+									fontSize: 16,
 									fontWeight: 700,
 								}}
 								dataKey="topPlayers"
 								position="center"
-								formatter={(v: number) => {
-									return `$${v.toLocaleString("en-US")}`;
+								formatter={(v: any) => {
+									return `${v}%`;
 								}}
 							/>
 						</Bar>
-						<Legend />
 					</BarChart>
 				)}
 			</Grid2>

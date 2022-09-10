@@ -24,27 +24,28 @@ export default function DeleteDialog({ Close, Target }: Props) {
 		}
 		axios
 			.delete(`/api/v1/leaderboard/${Target.id}`)
-			.then((response) => {
-				if (response.status === 200) {
-					enqueueSnackbar(`Sucessfully deleted leaderboard entry: ${Target.name}`, {
-						variant: "success",
-					});
-					Close(true);
-				} else {
-					throw new Error("Unexpected response: " + response.status);
-				}
+			.then(() => {
+				enqueueSnackbar(`Successfully deleted leaderboard entry: ${Target.name}`, {
+					variant: "success",
+				});
 			})
 			.catch((error) => {
-				Close(true);
 				if (axios.isAxiosError(error)) {
-					enqueueSnackbar(`Failed to delete leaderboard entry: ${error.message}`, {
-						variant: "error",
-					});
-				} else {
-					enqueueSnackbar(error, {
-						variant: "error",
-					});
+					if (error.status === "401") {
+						enqueueSnackbar("You are not logged in", {
+							variant: "error",
+						});
+						return;
+					}
 				}
+
+				enqueueSnackbar("Failed to delete leaderboard entry. Please Report this.", {
+					variant: "error",
+				});
+				console.error(error);
+			})
+			.finally(() => {
+				Close(true);
 			});
 	};
 

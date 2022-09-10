@@ -1,6 +1,6 @@
 services:
   server:
-    image: trentshailer/investible-webserver:1.0.10
+    image: trentshailer/investible-webserver:1.0.13
     env_file:
       - ./.env
     ports:

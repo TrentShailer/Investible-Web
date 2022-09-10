@@ -7,29 +7,30 @@ import { BarChart, CartesianGrid, XAxis, YAxis, Bar, LabelList, Legend } from "r
 import InfoCard from "../../InfoCard";
 /* [{ label: "Average Number of Turns", allPlayers: 52, topPlayers: 162 }] */
 
-export default function Turns() {
-	const [data, setData] = useState<GameAnalytics[] | undefined>();
+export default function TurnsComparison() {
 	const { enqueueSnackbar } = useSnackbar();
+	const [data, setData] = useState<GameAnalytics[] | undefined>();
+
 	useEffect(() => {
 		axios
-			.get("/api/v1/turns")
+			.get("/api/v1/analytics/game/comparison/Turns")
 			.then((response) => {
-				if (response.status === 200) {
-					setData(response.data);
-				} else {
-					throw new Error("Unexpected Response: " + response.status);
-				}
+				setData(response.data);
 			})
 			.catch((error) => {
 				if (axios.isAxiosError(error)) {
-					enqueueSnackbar("Failed to get turn data: " + error.message, {
-						variant: "error",
-					});
-				} else {
-					enqueueSnackbar("Failed to get turn data: " + error, {
-						variant: "error",
-					});
+					if (error.status === "401") {
+						enqueueSnackbar("You are not logged in", {
+							variant: "error",
+						});
+						return;
+					}
 				}
+
+				enqueueSnackbar("Failed to get turn analytics. Please report this.", {
+					variant: "error",
+				});
+				console.error(error);
 			});
 	}, []);
 

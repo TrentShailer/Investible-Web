@@ -47,22 +47,24 @@ export default function Players() {
 
 	useEffect(() => {
 		axios
-			.get("/api/v1/players")
+			.get("/api/v1/analytics/general/players")
 			.then((response) => {
-				if (response.status === 200) {
-					setData(response.data);
-				} else {
-					throw new Error("Unexpected Response: " + response.status);
-				}
+				setData(response.data);
 			})
 			.catch((error) => {
 				if (axios.isAxiosError(error)) {
-					enqueueSnackbar("Failed to get player data: " + error.message, {
-						variant: "error",
-					});
-				} else {
-					enqueueSnackbar("Failed to get player data: " + error, { variant: "error" });
+					if (error.status === "401") {
+						enqueueSnackbar("You are not logged in", {
+							variant: "error",
+						});
+						return;
+					}
 				}
+
+				enqueueSnackbar("Failed to get player analytics. Please report this.", {
+					variant: "error",
+				});
+				console.error(error);
 			});
 	}, []);
 

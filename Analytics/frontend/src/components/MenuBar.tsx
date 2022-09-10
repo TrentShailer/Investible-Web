@@ -5,9 +5,16 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 
 type Props = {
-	page: number;
+	page: Page;
 	onChange: Function;
 };
+
+enum Page {
+	competition,
+	leaderboard,
+	generalAnalytics,
+	gameAnalytics,
+}
 
 export default function MenuBar({ page, onChange }: Props) {
 	const { enqueueSnackbar } = useSnackbar();
@@ -15,23 +22,13 @@ export default function MenuBar({ page, onChange }: Props) {
 		axios
 			.delete("/api/v1/session")
 			.then((response) => {
-				if (response.status === 200) {
-					window.location.href = "/";
-					return;
-				} else {
-					throw new Error("Unexpected response: " + response.status);
-				}
+				window.location.href = "/login";
 			})
 			.catch((error) => {
-				if (axios.isAxiosError(error)) {
-					enqueueSnackbar("Failed to delete your session: " + error.message, {
-						variant: "error",
-					});
-				} else {
-					enqueueSnackbar(error, {
-						variant: "error",
-					});
-				}
+				enqueueSnackbar("Failed to log out. Please report this.", {
+					variant: "error",
+				});
+				console.error(error);
 			});
 	};
 
@@ -43,7 +40,8 @@ export default function MenuBar({ page, onChange }: Props) {
 						onChange(v);
 					}}
 					value={page}>
-					<Tab label="Moderation" />
+					<Tab label="Competition" />
+					<Tab label="Leaderboard" />
 					<Tab label="General Analytics" />
 					<Tab label="Game Analytics" />
 				</Tabs>
@@ -54,3 +52,5 @@ export default function MenuBar({ page, onChange }: Props) {
 		</Box>
 	);
 }
+
+export { Page };

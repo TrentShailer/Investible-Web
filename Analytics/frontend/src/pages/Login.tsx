@@ -14,23 +14,18 @@ export default function Login() {
 		setHelperText("");
 		axios
 			.post("/api/v1/login", { password: password })
-			.then((response) => {
-				if (response.status === 200) {
-					window.location.href = "/";
-				} else {
-					throw new Error("Unexpected response: " + response.status);
-				}
+			.then(() => {
+				window.location.href = "/";
 			})
 			.catch((error) => {
 				if (axios.isAxiosError(error)) {
 					if (error.status === "401") {
 						setHelperText("Password is incorrect");
-					} else {
-						enqueueSnackbar(error.message, { variant: "error" });
+						return;
 					}
-				} else {
-					enqueueSnackbar(error, { variant: "error" });
 				}
+				console.error(error);
+				enqueueSnackbar("Failed to login. Please report this.", { variant: "error" });
 			});
 	};
 

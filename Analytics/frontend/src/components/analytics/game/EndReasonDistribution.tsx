@@ -30,13 +30,13 @@ const colours = ["#82ca9d", "#8884d8", "#81D4FA", "#EF9A9A"];
 	]
  */
 
-export default function EndReason() {
+export default function EndReasonDistribution() {
 	const [data, setData] = useState<CategoryValue[] | undefined>();
 
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/endreason")
+			.get("/api/v1/analytics/game/distribution/EndReason")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);
@@ -46,14 +46,18 @@ export default function EndReason() {
 			})
 			.catch((error) => {
 				if (axios.isAxiosError(error)) {
-					enqueueSnackbar("Failed to get end reason data: " + error.message, {
-						variant: "error",
-					});
-				} else {
-					enqueueSnackbar("Failed to get end reason data: " + error, {
-						variant: "error",
-					});
+					if (error.status === "401") {
+						enqueueSnackbar("You are not logged in", {
+							variant: "error",
+						});
+						return;
+					}
 				}
+
+				enqueueSnackbar("Failed to get end reason analytics. Please report this.", {
+					variant: "error",
+				});
+				console.error(error);
 			});
 	}, []);
 
@@ -65,7 +69,7 @@ export default function EndReason() {
 
 			<Grid2 container justifyContent="center">
 				{data === undefined ? (
-					<Skeleton sx={{ marginTop: 1 }} variant="circular" width={160} height={160} />
+					<Skeleton sx={{ marginTop: 2 }} variant="circular" width={180} height={180} />
 				) : (
 					<PieChart width={300} height={220}>
 						<Pie

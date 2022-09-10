@@ -1,39 +1,30 @@
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import MenuBar from "../components/MenuBar";
+import MenuBar, { Page } from "../components/MenuBar";
 import Game from "./analytics/Game";
 import General from "./analytics/General";
-import Moderation from "./Moderation";
+import Leaderboard from "./Leaderboard";
+import Competition from "./Competition";
 
 export default function Home() {
-	const [page, setPage] = useState<number>();
+	const [page, setPage] = useState<Page>();
 	const [Body, setBody] = useState(<></>);
 	const { enqueueSnackbar } = useSnackbar();
 
 	const onFocus = () => {
-		axios
-			.get("/api/v1/authenticated")
-			.then((response) => {
-				if (response.status !== 200) {
-					throw new Error("Unexpected response: " + response.status);
+		axios.get("/api/v1/authenticated").catch((error) => {
+			if (axios.isAxiosError(error)) {
+				if (error.status === "401") {
+					window.location.href = "/login";
+					return;
 				}
-			})
-			.catch((error) => {
-				if (axios.isAxiosError(error)) {
-					if (error.status === "401") {
-						window.location.href = "/login";
-					} else {
-						enqueueSnackbar("Failed to get authentication status: " + error.message, {
-							variant: "error",
-						});
-					}
-				} else {
-					enqueueSnackbar("Failed to get authentication status: " + error, {
-						variant: "error",
-					});
-				}
+			}
+			console.error(error);
+			enqueueSnackbar("Failed to check authentication. Please report this.", {
+				variant: "error",
 			});
+		});
 	};
 
 	useEffect(() => {
@@ -54,17 +45,17 @@ export default function Home() {
 			window.localStorage.setItem("page", page.toString());
 		}
 		switch (page) {
-			case 0:
-				setBody(<Moderation />);
+			case Page.competition:
+				setBody(<Competition />);
 				break;
-			case 1:
+			case Page.leaderboard:
+				setBody(<Leaderboard />);
+				break;
+			case Page.generalAnalytics:
 				setBody(<General />);
 				break;
-			case 2:
+			case Page.gameAnalytics:
 				setBody(<Game />);
-				break;
-			default:
-				setBody(<Moderation />);
 				break;
 		}
 	}, [page]);
@@ -72,8 +63,8 @@ export default function Home() {
 	return (
 		<>
 			<MenuBar
-				page={page ? page : 0}
-				onChange={(value: number) => {
+				page={page ? page : Page.competition}
+				onChange={(value: Page) => {
 					setPage(value);
 				}}
 			/>

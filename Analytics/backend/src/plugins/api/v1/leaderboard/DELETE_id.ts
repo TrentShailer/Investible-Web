@@ -1,7 +1,11 @@
 import { FastifyInstance } from "fastify";
 
+interface Params {
+	id: string;
+}
+
 async function plugin(fastify: FastifyInstance, options: any) {
-	fastify.delete<{ Params: DELETE_leaderboard_Params }>("/leaderboard/:id", async (req, res) => {
+	fastify.delete<{ Params: Params }>("/:id", async (req, res) => {
 		if (!req.session.authenticated) {
 			return res.send(401);
 		}

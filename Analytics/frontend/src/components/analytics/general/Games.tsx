@@ -3,32 +3,35 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, XAxis } from "recharts";
 import InfoCard from "../../InfoCard";
 
 /* [{ name: "Average Number of Games", value: 12.5 }] */
 
 export default function Games() {
-	const [data, setData] = useState<CategoryValue[] | undefined>();
 	const { enqueueSnackbar } = useSnackbar();
+	const [data, setData] = useState<CategoryValue[] | undefined>();
+
 	useEffect(() => {
 		axios
-			.get("/api/v1/games")
+			.get("/api/v1/analytics/general/games")
 			.then((response) => {
-				if (response.status === 200) {
-					setData(response.data);
-				} else {
-					throw new Error("Unexpected Response: " + response.status);
-				}
+				setData(response.data);
 			})
 			.catch((error) => {
 				if (axios.isAxiosError(error)) {
-					enqueueSnackbar("Failed to get game data: " + error.message, {
-						variant: "error",
-					});
-				} else {
-					enqueueSnackbar("Failed to get game data: " + error, { variant: "error" });
+					if (error.status === "401") {
+						enqueueSnackbar("You are not logged in", {
+							variant: "error",
+						});
+						return;
+					}
 				}
+
+				enqueueSnackbar("Failed to get games analytics. Please report this.", {
+					variant: "error",
+				});
+				console.error(error);
 			});
 	}, []);
 
@@ -40,10 +43,15 @@ export default function Games() {
 
 			<Grid2 container justifyContent="center">
 				{data === undefined ? (
-					<Skeleton variant="rectangular" width={200} height={220} />
+					<Skeleton
+						sx={{ marginTop: 3 }}
+						variant="rectangular"
+						width={150}
+						height={175}
+					/>
 				) : (
 					<BarChart width={200} height={220} data={data}>
-						<XAxis label="Average Number of Games" dataKey="name" />
+						<XAxis dataKey="name" />
 						<Bar
 							barSize={75}
 							label={{ fill: "#fff", fontSize: 24, fontWeight: 700 }}
