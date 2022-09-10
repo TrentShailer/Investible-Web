@@ -16,7 +16,7 @@ export default function BlockDistributionComparison() {
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/comparison/BlockDistribution")
+			.get("/api/v1/analytics/game/comparison/block_distribution")
 			.then((response) => {
 				setData(response.data);
 			})

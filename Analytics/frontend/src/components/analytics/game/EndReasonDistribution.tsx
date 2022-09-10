@@ -36,7 +36,7 @@ export default function EndReasonDistribution() {
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/distribution/EndReason")
+			.get("/api/v1/analytics/game/distribution/end_reason")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);

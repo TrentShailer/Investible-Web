@@ -30,7 +30,7 @@ export default function TurnsHistogram() {
 
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/histogram/Turns")
+			.get("/api/v1/analytics/game/histogram/turns")
 			.then((response) => {
 				setData(response.data);
 			})

@@ -49,7 +49,7 @@ CREATE INDEX "IDX_leaderboard_portfolio_value" ON "leaderboard" ("portfolio_valu
 
 
 CREATE TABLE "session" (
-  "sid" varchar NOT NULL COLLATE "default",
+  "sid" varchar NOT NULL COLLATE "defaault",
   "sess" json NOT NULL,
   "expire" timestamp(6) NOT NULL
 )

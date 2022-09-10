@@ -8,10 +8,6 @@ import InfoCard from "../../InfoCard";
 
 const colours = ["#82ca9d", "#8884d8"];
 
-/* [
-	{ name: "Clicked Contact", value: 10 },
-	{ name: "Didn't Click Contact", value: 90 },
-] */
 export default function Contact() {
 	const { enqueueSnackbar } = useSnackbar();
 	const [data, setData] = useState<CategoryValue[] | undefined>();

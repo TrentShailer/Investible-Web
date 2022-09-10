@@ -39,6 +39,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				{ name: "Didn't Click Contact", value: didntClickContactPercentage },
 			]);
 		} catch (error) {
+			console.error(error);
 			return res.status(500).send();
 		}
 	});

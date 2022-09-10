@@ -33,7 +33,6 @@ type DetailedLeaderboardRow = {
 type PlayerCount = {
 	Date: string;
 	Players: number;
-	Contacted: number;
 };
 
 type CategoryValue = {

@@ -34,7 +34,7 @@ export default function EventDistribution() {
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/distribution/Event")
+			.get("/api/v1/analytics/game/distribution/event")
 			.then((response) => {
 				if (response.status === 200) {
 					setData(response.data);

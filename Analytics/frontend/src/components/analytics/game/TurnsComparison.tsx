@@ -13,7 +13,7 @@ export default function TurnsComparison() {
 
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/comparison/Turns")
+			.get("/api/v1/analytics/game/comparison/turns")
 			.then((response) => {
 				setData(response.data);
 			})

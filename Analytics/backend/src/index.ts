@@ -14,26 +14,26 @@ const fastify = Fastify({
 });
 
 fastify.register(fastifyCookie, {
-	parseOptions: { signed: true },
-} as FastifyCookieOptions);
+	//parseOptions: { signed: true },
+});
 
-fastify
-	.register(fastifyPostgres, {
-		connectionString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@database:5432/${process.env.POSTGRES_DATABASE}`,
-	})
-	.then(() => {
-		if (process.env.SESSION_SECRET) {
-			fastify.register(fastifySession, {
-				cookie: { maxAge: 1000 * 60 * 60 * 1 },
-				secret: process.env.SESSION_SECRET,
-				rolling: true,
-				store: new PGStore({ pool: fastify.pg.pool }) as any,
-			});
-		} else {
-			console.error("Session secret not found");
-			process.exit(1);
-		}
+fastify.register(fastifyPostgres, {
+	connectionString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@database:5432/${process.env.POSTGRES_DATABASE}`,
+});
+
+if (process.env.SESSION_SECRET) {
+	fastify.register(fastifySession, {
+		cookie: { maxAge: 1000 * 60 * 60 * 1, secure: false },
+		secret: process.env.SESSION_SECRET,
+		rolling: true,
+		store: new PGStore({
+			conString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@database:5432/${process.env.POSTGRES_DATABASE}`,
+		}) as any,
 	});
+} else {
+	console.error("Session secret not found");
+	process.exit(1);
+}
 
 fastify.register(fastifyStatic, {
 	root: path.join(__dirname, "frontend"),

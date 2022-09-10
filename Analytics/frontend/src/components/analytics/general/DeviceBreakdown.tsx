@@ -8,20 +8,13 @@ import InfoCard from "../../InfoCard";
 
 const colours = ["#82ca9d", "#8884d8"];
 
-/*
-[
-	{ name: "Mobile", value: 72.6 },
-	{ name: "Desktop", value: 27.4 },
-]
- */
-
 export default function DeviceBreakdown() {
 	const { enqueueSnackbar } = useSnackbar();
 	const [data, setData] = useState<CategoryValue[] | undefined>();
 
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/general/DeviceBreakdown")
+			.get("/api/v1/analytics/general/device_breakdown")
 			.then((response) => {
 				setData(response.data);
 			})

@@ -15,6 +15,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			}>("SELECT id, name, portfolio_value FROM leaderboard ORDER BY portfolio_value DESC;");
 			return res.status(200).send(rows);
 		} catch (error) {
+			console.error(error);
 			return res.status(500).send();
 		}
 	});

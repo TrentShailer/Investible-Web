@@ -15,7 +15,7 @@ export default function PortfolioValue() {
 	const { enqueueSnackbar } = useSnackbar();
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/comparison/PortfolioValue")
+			.get("/api/v1/analytics/game/comparison/portfolio_value")
 			.then((response) => {
 				setData(response.data);
 			})

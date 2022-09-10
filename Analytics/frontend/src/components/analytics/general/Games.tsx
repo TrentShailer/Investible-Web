@@ -6,8 +6,6 @@ import React, { useEffect, useState } from "react";
 import { Bar, BarChart, XAxis } from "recharts";
 import InfoCard from "../../InfoCard";
 
-/* [{ name: "Average Number of Games", value: 12.5 }] */
-
 export default function Games() {
 	const { enqueueSnackbar } = useSnackbar();
 	const [data, setData] = useState<CategoryValue[] | undefined>();

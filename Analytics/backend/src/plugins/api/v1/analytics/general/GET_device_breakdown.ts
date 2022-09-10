@@ -12,7 +12,7 @@ type Row = {
 };
 
 async function plugin(fastify: FastifyInstance, options: any) {
-	fastify.get("/devicebreakdown", async (req, res) => {
+	fastify.get("/device_breakdown", async (req, res) => {
 		if (!req.session.authenticated) {
 			return res.status(401).send();
 		}
@@ -37,6 +37,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				{ name: "Desktop", value: desktopPercentage },
 			]);
 		} catch (error) {
+			console.error(error);
 			return res.status(500).send();
 		}
 	});

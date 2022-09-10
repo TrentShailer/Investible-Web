@@ -30,7 +30,7 @@ export default function GameLengthHistogram() {
 
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/histogram/GameLength")
+			.get("/api/v1/analytics/game/histogram/game_length")
 			.then((response) => {
 				setData(response.data);
 			})

@@ -76,6 +76,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 
 			return res.status(200).send(rows[0]);
 		} catch (error) {
+			console.error(error);
 			return res.status(500).send();
 		}
 	});

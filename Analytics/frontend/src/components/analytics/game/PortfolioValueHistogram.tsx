@@ -30,7 +30,7 @@ export default function PortfolioValueHistogram() {
 
 	useEffect(() => {
 		axios
-			.get("/api/v1/analytics/game/histogram/PortfolioValue")
+			.get("/api/v1/analytics/game/histogram/portfolio_value")
 			.then((response) => {
 				setData(response.data);
 			})

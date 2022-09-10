@@ -14,6 +14,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			await fastify.pg.query("DELETE FROM leaderboard WHERE id = $1;", [req.params.id]);
 			return res.status(200).send();
 		} catch (error) {
+			console.error(error);
 			return res.status(500).send();
 		}
 	});
