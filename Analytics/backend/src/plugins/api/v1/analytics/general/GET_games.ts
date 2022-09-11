@@ -8,12 +8,15 @@ async function plugin(fastify: FastifyInstance, options: any) {
 		}
 
 		try {
-			const { rows } = await fastify.pg.query<{ avg: number }>(
-				"SELECT ROUND(AVG(game_count)) FROM (SELECT COUNT(*) as game_count FROM game GROUP BY player_id) t;"
+			const { rows } = await fastify.pg.query<{ count: number | null }>(
+				`SELECT
+					ROUND(AVG(game_count))::INT as count
+					FROM
+						(SELECT COUNT(*) as game_count FROM game GROUP BY player_id)t;`
 			);
-			const avg = rows[0].avg;
+			const count = rows[0].count ?? 0;
 
-			return res.status(200).send([{ name: "Average Number of Games", value: avg }]);
+			return res.status(200).send([{ name: "Average Number of Games", value: count }]);
 		} catch (error) {
 			console.error(error);
 			return res.status(500).send();

@@ -41,11 +41,7 @@ export default function Leaderboard() {
 		axios
 			.get("/api/v1/leaderboard")
 			.then((response) => {
-				if (response.data.leaderboard) {
-					SetTableData(response.data.leaderboard);
-				} else {
-					throw new Error("Empty Response");
-				}
+				SetTableData(response.data);
 			})
 			.catch((error) => {
 				SetTableData([]);

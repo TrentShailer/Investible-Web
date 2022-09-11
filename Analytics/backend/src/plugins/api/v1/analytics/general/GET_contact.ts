@@ -17,15 +17,13 @@ async function plugin(fastify: FastifyInstance, options: any) {
 
 		try {
 			const { rows } = await fastify.pg.query<Row>(
-				"SELECT clicked_contact, COUNT(*) FROM player GROUP BY clicked_contact;"
+				"SELECT clicked_contact::BOOL, COUNT(*)::INT FROM player GROUP BY clicked_contact;"
 			);
 
-			const clickedContact = rows.find((row) => row.clicked_contact);
-			const didntClickContact = rows.find((row) => !row.clicked_contact);
+			const clickedContactCount = rows.find((row) => row.clicked_contact)?.count ?? 0;
+			const didntClickContactCount = rows.find((row) => !row.clicked_contact)?.count ?? 0;
 
-			const clickedContactCount = clickedContact ? clickedContact.count : 0;
-			const didntClickContactCount = didntClickContact ? didntClickContact.count : 0;
-			const total: number = clickedContactCount + didntClickContactCount;
+			const total = clickedContactCount + didntClickContactCount;
 
 			const clickedContactPercentage = Number(
 				((clickedContactCount / total) * 100).toFixed(1)

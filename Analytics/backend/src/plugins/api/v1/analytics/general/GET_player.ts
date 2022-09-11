@@ -32,22 +32,33 @@ async function plugin(fastify: FastifyInstance, options: any) {
 
 		try {
 			let result = [];
-			const { rows: data } = await fastify.pg.query<{ timestamp: Date; count: number }>(
-				`SELECT DATE(timestamp), COUNT(*) FROM game WHERE timestamp > CURRENT_DATE - interval '21 day' AND turns > 10 AND DATE(timestamp) != CURRENT_DATE GROUP BY DATE(timestamp);`
+			const { rows: data } = await fastify.pg.query<{ timestamp: string; count: number }>(
+				`SELECT
+					DATE(timestamp)::DATE as timestamp,
+					COUNT(*)::INT
+						FROM game WHERE
+							timestamp > CURRENT_DATE - interval '21 day' AND
+							turns > 10 AND
+							DATE(timestamp) != CURRENT_DATE
+								GROUP BY DATE(timestamp);`
 			);
-			const { rows: blankData } = await fastify.pg.query<{ timestamp: Date; count: number }>(
-				"SELECT generate_series(CURRENT_DATE - interval '21 day', CURRENT_DATE - interval '1 day', interval '1 day') as timestamp, 0 as count;"
+			const { rows: blankData } = await fastify.pg.query<{
+				timestamp: string;
+				count: number;
+			}>(
+				`SELECT
+					generate_series(CURRENT_DATE - interval '21 day', CURRENT_DATE - interval '1 day', interval '1 day')::DATE as timestamp,
+					0 as count;`
 			);
 
 			for (const row of blankData) {
 				const playerRow = data.find(
-					(d) => d.timestamp.toISOString() === row.timestamp.toISOString()
+					(d) => d.timestamp.toString() === row.timestamp.toString()
 				);
-				let dateString = format(row.timestamp, "dd MMM");
+				let dateString = format(new Date(row.timestamp), "dd MMM");
 				result.push({
 					Date: dateString,
-					Players: playerRow ? playerRow.count : 0,
-					Contacted: 0,
+					Players: playerRow?.count ?? 0,
 				});
 			}
 

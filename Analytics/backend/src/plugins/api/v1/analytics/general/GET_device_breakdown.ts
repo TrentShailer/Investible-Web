@@ -19,15 +19,13 @@ async function plugin(fastify: FastifyInstance, options: any) {
 
 		try {
 			const { rows } = await fastify.pg.query<Row>(
-				"SELECT mobile, COUNT(*) FROM player GROUP BY mobile;"
+				"SELECT mobile::BOOL, COUNT(*)::INT FROM player GROUP BY mobile;"
 			);
 
-			const mobile = rows.find((row) => row.mobile);
-			const desktop = rows.find((row) => !row.mobile);
+			const mobileCount = rows.find((row) => row.mobile)?.count ?? 0;
+			const desktopCount = rows.find((row) => !row.mobile)?.count ?? 0;
 
-			const mobileCount = mobile ? mobile.count : 0;
-			const desktopCount = desktop ? desktop.count : 0;
-			const total: number = mobileCount + desktopCount;
+			const total = mobileCount + desktopCount;
 
 			const mobilePercentage = Number(((mobileCount / total) * 100).toFixed(1));
 			const desktopPercentage = Number(((desktopCount / total) * 100).toFixed(1));

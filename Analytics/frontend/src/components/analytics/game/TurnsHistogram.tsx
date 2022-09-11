@@ -3,7 +3,7 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import { ResponsiveContainer, XAxis, BarChart, Bar, Label } from "recharts";
+import { ResponsiveContainer, XAxis, BarChart, Bar, Label, Tooltip } from "recharts";
 
 /* [
 		{ range: "0-10", count: 10 },
@@ -66,6 +66,8 @@ export default function TurnsHistogram() {
 								<XAxis angle={-15} interval={0} fontSize={12} dataKey="range">
 									<Label value="Number of Turns" offset={10} position="bottom" />
 								</XAxis>
+
+								<Tooltip />
 								<Bar dataKey="count" fill="#8884d8" />
 							</BarChart>
 						</ResponsiveContainer>

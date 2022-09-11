@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { format } from "date-fns";
 
 interface Params {
 	id: string;
@@ -74,7 +75,10 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				return res.status(404).send();
 			}
 
-			return res.status(200).send(rows[0]);
+			let result = rows[0];
+			result.timestamp = format(new Date(result.timestamp), "yyyy-MM-dd hh:mmaa");
+
+			return res.status(200).send(result);
 		} catch (error) {
 			console.error(error);
 			return res.status(500).send();

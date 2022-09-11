@@ -62,36 +62,32 @@ export default function EventDistribution() {
 	return (
 		<InfoCard>
 			<Typography variant="h5" textAlign={"center"}>
-				Game End Reason
+				Events per Game
 			</Typography>
 
 			<Grid2 container justifyContent="center">
 				{data === undefined ? (
-					<Skeleton sx={{ marginTop: 2 }} variant="circular" width={180} height={180} />
+					<Skeleton variant="rectangular" width={200} height={220} />
 				) : (
-					<PieChart width={300} height={220}>
-						<Pie
-							data={data}
-							nameKey="name"
-							dataKey="value"
-							cx="50%"
-							cy="50%"
-							innerRadius={60}
-							outerRadius={80}>
+					<BarChart width={200} height={220} data={data}>
+						<XAxis dataKey="name" />
+						<Bar dataKey="value" fill="#8884d8">
 							<LabelList
-								style={{ stroke: "none", fontSize: 18, fontWeight: 700 }}
+								style={{
+									fill: "#000",
+									stroke: "none",
+									fontSize: 16,
+									fontWeight: 700,
+								}}
 								dataKey="value"
-								position="outside"
-								formatter={(v: any) => {
-									return `${v}%`;
+								position="center"
+								formatter={(v: number) => {
+									return `${v}`;
 								}}
 							/>
-							{data.map((entry, index) => (
-								<Cell key={`cell-${index}`} fill={colours[index]} />
-							))}
-						</Pie>
+						</Bar>
 						<Legend />
-					</PieChart>
+					</BarChart>
 				)}
 			</Grid2>
 		</InfoCard>
