@@ -93,6 +93,7 @@ export default function EndReasonDistribution() {
 							))}
 						</Pie>
 						<Legend />
+						<Tooltip />
 					</PieChart>
 				)}
 			</Grid2>

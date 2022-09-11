@@ -3,7 +3,7 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import { Cell, LabelList, Legend, Pie, PieChart } from "recharts";
+import { Cell, LabelList, Legend, Pie, PieChart, Tooltip } from "recharts";
 import InfoCard from "../../InfoCard";
 
 const colours = ["#82ca9d", "#8884d8"];
@@ -64,6 +64,7 @@ export default function Contact() {
 								<Cell key={`cell-${index}`} fill={colours[index]} />
 							))}
 						</Pie>
+						<Tooltip />
 						<Legend />
 					</PieChart>
 				)}

@@ -17,14 +17,14 @@ import {
 	YAxis,
 } from "recharts";
 
-export default function Players() {
+export default function GameCount() {
 	const [data, setData] = useState<PlayerCount[] | undefined>();
 	const { enqueueSnackbar } = useSnackbar();
 
 	useEffect(() => {
 		setData(undefined);
 		axios
-			.get("/api/v1/analytics/general/players")
+			.get("/api/v1/analytics/general/game_count")
 			.then((response) => {
 				setData(response.data);
 			})
@@ -48,7 +48,7 @@ export default function Players() {
 	return (
 		<Paper elevation={2} sx={{ padding: 2, marginTop: 4 }}>
 			<Typography variant="h5" mb={2} textAlign={"center"}>
-				Player Count
+				Game Count
 			</Typography>
 			{data === undefined ? (
 				<Skeleton variant="rounded" width={"100%"} height={300} />
@@ -67,13 +67,12 @@ export default function Players() {
 							<CartesianGrid strokeDasharray="3 3" />
 							<Line
 								type="monotone"
-								dataKey={"Players"}
+								dataKey={"Games"}
 								stroke="#8884d8"
 								fillOpacity={0.5}
 								fill="#8884d8"
 								dot={true}
 							/>
-							<Legend verticalAlign="bottom" height={36} />
 						</LineChart>
 					</ResponsiveContainer>
 				</Grid2>

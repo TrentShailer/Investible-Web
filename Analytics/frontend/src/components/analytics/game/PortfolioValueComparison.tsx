@@ -3,7 +3,7 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import { BarChart, CartesianGrid, XAxis, YAxis, Bar, LabelList, Legend } from "recharts";
+import { BarChart, CartesianGrid, XAxis, YAxis, Bar, LabelList, Legend, Tooltip } from "recharts";
 import InfoCard from "../../InfoCard";
 /* [
 		{ label: "Average Portfolio Value", allPlayers: 512462, topPlayers: 1240570 },
@@ -47,7 +47,7 @@ export default function PortfolioValue() {
 					<Skeleton variant="rectangular" width={200} height={220} />
 				) : (
 					<BarChart width={200} height={220} data={data}>
-						<XAxis dataKey="group" />
+						<XAxis dataKey="label" />
 						<Bar name="All Players" dataKey="allPlayers" fill="#8884d8">
 							<LabelList
 								style={{
@@ -79,6 +79,7 @@ export default function PortfolioValue() {
 							/>
 						</Bar>
 						<Legend />
+						<Tooltip />
 					</BarChart>
 				)}
 			</Grid2>

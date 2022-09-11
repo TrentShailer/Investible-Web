@@ -25,7 +25,7 @@ import { FastifyInstance } from "fastify";
 import { format } from "date-fns";
 
 async function plugin(fastify: FastifyInstance, options: any) {
-	fastify.get("/players", async (req, res) => {
+	fastify.get("/game_count", async (req, res) => {
 		if (!req.session.authenticated) {
 			return res.status(401).send();
 		}
@@ -52,13 +52,13 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			);
 
 			for (const row of blankData) {
-				const playerRow = data.find(
+				const gameRow = data.find(
 					(d) => d.timestamp.toString() === row.timestamp.toString()
 				);
 				let dateString = format(new Date(row.timestamp), "dd MMM");
 				result.push({
 					Date: dateString,
-					Players: playerRow?.count ?? 0,
+					Games: gameRow?.count ?? 0,
 				});
 			}
 

@@ -3,7 +3,7 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import { BarChart, CartesianGrid, XAxis, YAxis, Bar, LabelList, Legend } from "recharts";
+import { BarChart, CartesianGrid, XAxis, YAxis, Bar, LabelList, Legend, Tooltip } from "recharts";
 import InfoCard from "../../InfoCard";
 
 /* [
@@ -82,6 +82,7 @@ export default function BlockDistributionComparison() {
 								}}
 							/>
 						</Bar>
+						<Tooltip />
 					</BarChart>
 				)}
 			</Grid2>

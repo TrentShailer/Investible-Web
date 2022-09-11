@@ -3,7 +3,7 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import { Bar, BarChart, XAxis } from "recharts";
+import { Bar, BarChart, Tooltip, XAxis } from "recharts";
 import InfoCard from "../../InfoCard";
 
 export default function Games() {
@@ -56,6 +56,7 @@ export default function Games() {
 							dataKey="value"
 							fill="#8884d8"
 						/>
+						<Tooltip />
 					</BarChart>
 				)}
 			</Grid2>

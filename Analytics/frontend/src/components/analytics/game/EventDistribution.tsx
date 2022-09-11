@@ -86,7 +86,7 @@ export default function EventDistribution() {
 								}}
 							/>
 						</Bar>
-						<Legend />
+						<Tooltip />
 					</BarChart>
 				)}
 			</Grid2>

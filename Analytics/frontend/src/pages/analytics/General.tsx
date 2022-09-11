@@ -4,12 +4,12 @@ import React from "react";
 import Contact from "../../components/analytics/general/Contact";
 import DeviceBreakdown from "../../components/analytics/general/DeviceBreakdown";
 import Games from "../../components/analytics/general/Games";
-import Players from "../../components/analytics/general/Players";
+import GameCount from "../../components/analytics/general/GameCount";
 
 export default function General() {
 	return (
 		<Container>
-			<Players />
+			<GameCount />
 			<Grid2 sx={{ marginTop: 4 }} container justifyContent={"space-between"}>
 				<Games />
 				<DeviceBreakdown />
