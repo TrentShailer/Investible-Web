@@ -19,7 +19,7 @@ export default function Login() {
 			})
 			.catch((error) => {
 				if (axios.isAxiosError(error)) {
-					if (error.status === "401") {
+					if (error.status === "401" || error.response?.status === 401) {
 						setHelperText("Password is incorrect");
 						return;
 					}

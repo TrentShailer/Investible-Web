@@ -1,3 +1,11 @@
+type Competition = {
+	id: string;
+	start_date: string;
+	end_date: string;
+	details: string;
+	title: string;
+};
+
 type LeaderboardRow = {
 	id: string;
 	name: string;

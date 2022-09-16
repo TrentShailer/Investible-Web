@@ -12,7 +12,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			);
 			const count = rows[0].count ?? 0;
 
-			return res.status(200).send([{ name: "Total Players", value: count }]);
+			return res.status(200).send(count);
 		} catch (error) {
 			console.error(error);
 			return res.status(500).send();

@@ -5,6 +5,7 @@ CREATE TABLE "player" (
 );
 CREATE TABLE "competition" (
 	"id" UUID PRIMARY KEY NOT NULL,
+	"title" VARCHAR NOT NULL,
 	"start_date" TIMESTAMPTZ NOT NULL,
 	"end_date" TIMESTAMPTZ NOT NULL,
 	"details" VARCHAR NOT NULL,

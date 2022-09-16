@@ -1,12 +1,18 @@
 import {
 	Container,
+	FormControl,
+	FormControlLabel,
+	FormLabel,
 	Paper,
+	Radio,
+	RadioGroup,
 	Table,
 	TableBody,
 	TableCell,
 	TableContainer,
 	TableHead,
 	TableRow,
+	Typography,
 } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -15,6 +21,7 @@ import TableRowSkeleton from "../components/leaderboard/TableRowSkeleton";
 import { useSnackbar } from "notistack";
 import DeleteDialog from "../components/leaderboard/DeleteDialog";
 import ViewDialog from "../components/leaderboard/ViewDialog";
+import Grid2 from "@mui/material/Unstable_Grid2";
 
 function range(min: number, max: number) {
 	var len = max - min + 1;
@@ -29,8 +36,13 @@ export default function Leaderboard() {
 	const [TableData, SetTableData] = useState<LeaderboardRow[] | null>(null);
 	const [DeleteTarget, SetDeleteTarget] = useState<LeaderboardRow | null>(null);
 	const [ViewTarget, SetViewTarget] = useState<LeaderboardRow | null>(null);
+	const [view, setView] = useState<"everything" | "competition">("everything");
 
 	const { enqueueSnackbar } = useSnackbar();
+
+	useEffect(() => {
+		FetchTableData();
+	}, [view]);
 
 	useEffect(() => {
 		FetchTableData();
@@ -39,14 +51,14 @@ export default function Leaderboard() {
 	const FetchTableData = () => {
 		SetTableData(null);
 		axios
-			.get("/api/v1/leaderboard")
+			.get("/api/v1/leaderboard" + (view === "competition" ? "?competition=true" : ""))
 			.then((response) => {
 				SetTableData(response.data);
 			})
 			.catch((error) => {
 				SetTableData([]);
 				if (axios.isAxiosError(error)) {
-					if (error.status === "401") {
+					if (error.status === "401" || error.response?.status === 401) {
 						enqueueSnackbar("You are not logged in", {
 							variant: "error",
 						});
@@ -85,7 +97,31 @@ export default function Leaderboard() {
 			<DeleteDialog Close={CloseDeleteDialog} Target={DeleteTarget} />
 			<ViewDialog Close={CloseViewDialog} Target={ViewTarget} />
 			<Container>
-				<TableContainer sx={{ marginTop: 4, marginBottom: 4 }} component={Paper}>
+				<Grid2 container justifyContent="center">
+					<Paper sx={{ padding: 2, marginTop: 2, width: 200 }}>
+						<FormControl>
+							<FormLabel>View</FormLabel>
+							<RadioGroup
+								onChange={(v) => {
+									setView(v.target.value as "everything" | "competition");
+								}}
+								value={view}
+								defaultValue="everything">
+								<FormControlLabel
+									value="everything"
+									control={<Radio />}
+									label="Everything"
+								/>
+								<FormControlLabel
+									value="competition"
+									control={<Radio />}
+									label="Current Competition"
+								/>
+							</RadioGroup>
+						</FormControl>
+					</Paper>
+				</Grid2>
+				<TableContainer sx={{ marginTop: 2, marginBottom: 4 }} component={Paper}>
 					<Table size="small">
 						<TableHead>
 							<TableRow>

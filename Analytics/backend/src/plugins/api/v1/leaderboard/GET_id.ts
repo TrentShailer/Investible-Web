@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 interface Params {
 	id: string;
@@ -76,7 +77,6 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			}
 
 			let result = rows[0];
-			result.timestamp = format(new Date(result.timestamp), "yyyy-MM-dd hh:mmaa");
 
 			return res.status(200).send(result);
 		} catch (error) {

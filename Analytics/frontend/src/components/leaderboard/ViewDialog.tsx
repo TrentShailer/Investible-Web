@@ -15,6 +15,9 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect } from "react";
 import InfoGrid from "./ViewDialog/InfoGrid";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
 type Props = {
 	Close: Function;
@@ -23,7 +26,9 @@ type Props = {
 
 export default function ViewDialog({ Close, Target }: Props) {
 	const { enqueueSnackbar } = useSnackbar();
-
+	dayjs.extend(utc);
+	dayjs.extend(timezone);
+	const [TZ, setTZ] = React.useState<string>(dayjs.tz.guess());
 	const [data, setData] = React.useState<DetailedLeaderboardRow | null>(null);
 
 	useEffect(() => {
@@ -31,12 +36,14 @@ export default function ViewDialog({ Close, Target }: Props) {
 			axios
 				.get(`/api/v1/leaderboard/${Target.id}`)
 				.then((res) => {
-					setData(res.data);
+					let data = res.data as DetailedLeaderboardRow;
+					data.timestamp = dayjs.utc(data.timestamp).tz(TZ).format("YYYY/MM/DD hh:mm a");
+					setData(data);
 				})
 				.catch((error) => {
 					Close();
 					if (axios.isAxiosError(error)) {
-						if (error.status === "401") {
+						if (error.status === "401" || error.response?.status === 401) {
 							enqueueSnackbar("You are not logged in", {
 								variant: "error",
 							});

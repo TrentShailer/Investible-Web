@@ -9,23 +9,17 @@ import {
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React from "react";
-
 type Props = {
-	Close: Function;
-	Target: LeaderboardRow | null;
+	id: string | undefined;
+	Close: (refresh: boolean) => void;
 };
-
-export default function DeleteDialog({ Close, Target }: Props) {
+export default function DeleteDialog({ id, Close }: Props) {
 	const { enqueueSnackbar } = useSnackbar();
 	const Confirm = () => {
-		if (!Target) {
-			enqueueSnackbar("Target entry was not set.", { variant: "error" });
-			return;
-		}
 		axios
-			.delete(`/api/v1/leaderboard/${Target.id}`)
+			.delete(`/api/v1/competition/${id}`)
 			.then(() => {
-				enqueueSnackbar(`Successfully deleted leaderboard entry: ${Target.name}`, {
+				enqueueSnackbar(`Successfully deleted competition: ${id}`, {
 					variant: "success",
 				});
 			})
@@ -38,8 +32,7 @@ export default function DeleteDialog({ Close, Target }: Props) {
 						return;
 					}
 				}
-
-				enqueueSnackbar("Failed to delete leaderboard entry. Please Report this.", {
+				enqueueSnackbar("Failed to delete competition. Please Report this.", {
 					variant: "error",
 				});
 				console.error(error);
@@ -48,24 +41,23 @@ export default function DeleteDialog({ Close, Target }: Props) {
 				Close(true);
 			});
 	};
-
 	return (
 		<Dialog
-			open={Target ? true : false}
+			open={id ? true : false}
 			onClose={() => {
-				Close();
+				Close(false);
 			}}>
-			<DialogTitle>Delete Leaderboard Entry {Target?.name}</DialogTitle>
+			<DialogTitle>Delete Competition?</DialogTitle>
 			<DialogContent>
 				<DialogContentText>
-					Deleting a leaderboard entry is a permanant action and cannot be undone. This
-					will not remove the leaderboard entry from any backups of the database.
+					Deleting a competition is a permanent action and cannot be undone. This will not
+					remove the competition from any backups of the database.
 				</DialogContentText>
 			</DialogContent>
 			<DialogActions>
 				<Button
 					onClick={() => {
-						Close();
+						Close(false);
 					}}
 					autoFocus>
 					Cancel

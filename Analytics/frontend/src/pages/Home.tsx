@@ -15,7 +15,7 @@ export default function Home() {
 	const onFocus = () => {
 		axios.get("/api/v1/authenticated").catch((error) => {
 			if (axios.isAxiosError(error)) {
-				if (error.status === "401") {
+				if (error.status === "401" || error.response?.status === 401) {
 					window.location.href = "/login";
 					return;
 				}

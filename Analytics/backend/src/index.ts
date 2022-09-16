@@ -13,9 +13,7 @@ const fastify = Fastify({
 	logger: false,
 });
 
-fastify.register(fastifyCookie, {
-	//parseOptions: { signed: true },
-});
+fastify.register(fastifyCookie, {});
 
 fastify.register(fastifyPostgres, {
 	connectionString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@database:5432/${process.env.POSTGRES_DATABASE}`,
@@ -23,7 +21,7 @@ fastify.register(fastifyPostgres, {
 
 if (process.env.SESSION_SECRET) {
 	fastify.register(fastifySession, {
-		cookie: { maxAge: 1000 * 60 * 60 * 1, secure: false },
+		cookie: { maxAge: 1000 * 60 * 60 * 1 },
 		secret: process.env.SESSION_SECRET,
 		rolling: true,
 		store: new PGStore({
