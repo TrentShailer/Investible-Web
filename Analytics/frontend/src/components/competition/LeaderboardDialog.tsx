@@ -9,7 +9,9 @@ import {
 	TableContainer,
 	TableHead,
 	TableRow,
+	Pagination,
 } from "@mui/material";
+import Grid2 from "@mui/material/Unstable_Grid2";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect } from "react";
@@ -33,21 +35,20 @@ function range(min: number, max: number) {
 
 export default function LeaderboardDialog({ id, Close }: Props) {
 	const { enqueueSnackbar } = useSnackbar();
-	const [TableData, setTableData] = React.useState<LeaderboardRow[] | null>([
-		{
-			id: "1",
-			name: "Trent",
-			portfolio_value: 100000,
-		},
-	]);
+	const [TableData, setTableData] = React.useState<LeaderboardRow[] | null>(null);
 	const [ViewTarget, setViewTarget] = React.useState<LeaderboardRow | null>(null);
+	const [page, setPage] = React.useState(1);
+	const [pageCount, setPageCount] = React.useState(1);
 
 	useEffect(() => {
 		if (id) {
+			let uri = `/api/v1/competition/${id}/leaderboard?page=${page}`;
+			setTableData(null);
 			axios
-				.get(`/api/v1/competition/${id}/leaderboard`)
+				.get(uri)
 				.then((res) => {
-					setTableData(res.data);
+					setTableData(res.data.leaderboard);
+					setPageCount(res.data.pageCount);
 				})
 				.catch((error) => {
 					if (axios.isAxiosError(error)) {
@@ -66,7 +67,7 @@ export default function LeaderboardDialog({ id, Close }: Props) {
 		} else {
 			setTableData(null);
 		}
-	}, [id]);
+	}, [id, page]);
 
 	const Reset = () => {
 		Close();
@@ -109,7 +110,7 @@ export default function LeaderboardDialog({ id, Close }: Props) {
 										{TableData.map((row, index) => (
 											<TableItem
 												key={row.id}
-												index={index}
+												index={index + (page - 1) * 10}
 												row={row}
 												OpenViewDialog={OpenViewDialog}
 											/>
@@ -119,6 +120,18 @@ export default function LeaderboardDialog({ id, Close }: Props) {
 							</TableBody>
 						</Table>
 					</TableContainer>
+					<Grid2 container justifyContent="center">
+						<Pagination
+							count={pageCount}
+							color="primary"
+							showFirstButton
+							showLastButton
+							page={page}
+							onChange={(e, newPage) => {
+								setPage(newPage);
+							}}
+						/>
+					</Grid2>
 				</DialogContent>
 			</Dialog>
 		</>

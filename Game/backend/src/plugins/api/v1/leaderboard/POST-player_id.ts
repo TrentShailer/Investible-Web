@@ -53,22 +53,22 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				);
 				return res.status(200).send();
 			} else {
-				await fastify.pg.query(
-					`UPDATE leaderboard SET name = $1, game_id = $2, portfolio_value = $3, email = $4, first_name = $5, last_name = $6, mobile = $7, agree = $8 WHERE id = $9;`,
-					[
-						req.body.name,
-						req.body.game_id,
-						req.body.portfolio_value > ids[0].portfolio_value
-							? req.body.portfolio_value
-							: ids[0].portfolio_value,
-						req.body.email,
-						req.body.first_name,
-						req.body.last_name,
-						req.body.mobile,
-						req.body.agree,
-						ids[0].id,
-					]
-				);
+				if (req.body.portfolio_value > ids[0].portfolio_value) {
+					await fastify.pg.query(
+						`UPDATE leaderboard SET name = $1, game_id = $2, portfolio_value = $3, email = $4, first_name = $5, last_name = $6, mobile = $7, agree = $8, timestamp = CURRENT_TIMESTAMP WHERE id = $9;`,
+						[
+							req.body.name,
+							req.body.game_id,
+							req.body.portfolio_value,
+							req.body.email,
+							req.body.first_name,
+							req.body.last_name,
+							req.body.mobile,
+							req.body.agree,
+							ids[0].id,
+						]
+					);
+				}
 				return res.status(200).send();
 			}
 		} catch (error) {

@@ -3,6 +3,7 @@ import {
 	FormControl,
 	FormControlLabel,
 	FormLabel,
+	Pagination,
 	Paper,
 	Radio,
 	RadioGroup,
@@ -37,8 +38,14 @@ export default function Leaderboard() {
 	const [DeleteTarget, SetDeleteTarget] = useState<LeaderboardRow | null>(null);
 	const [ViewTarget, SetViewTarget] = useState<LeaderboardRow | null>(null);
 	const [view, setView] = useState<"everything" | "competition">("everything");
+	const [page, setPage] = useState(1);
+	const [pageCount, setPageCount] = useState(1);
 
 	const { enqueueSnackbar } = useSnackbar();
+
+	useEffect(() => {
+		FetchTableData();
+	}, []);
 
 	useEffect(() => {
 		FetchTableData();
@@ -46,14 +53,21 @@ export default function Leaderboard() {
 
 	useEffect(() => {
 		FetchTableData();
-	}, []);
+	}, [page]);
 
 	const FetchTableData = () => {
 		SetTableData(null);
+		let uri = "";
+		if (view === "everything") {
+			uri = `/api/v1/leaderboard?page=${page}`;
+		} else if (view === "competition") {
+			uri = `/api/v1/leaderboard/competition?page=${page}`;
+		}
 		axios
-			.get("/api/v1/leaderboard" + (view === "competition" ? "?competition=true" : ""))
+			.get(uri)
 			.then((response) => {
-				SetTableData(response.data);
+				SetTableData(response.data.leaderboard);
+				setPageCount(response.data.pageCount);
 			})
 			.catch((error) => {
 				SetTableData([]);
@@ -143,7 +157,7 @@ export default function Leaderboard() {
 									{TableData.map((row, index) => (
 										<TableItem
 											key={row.id}
-											index={index}
+											index={index + (page - 1) * 10}
 											row={row}
 											OpenDeleteDialog={OpenDeleteDialog}
 											OpenViewDialog={OpenViewDialog}
@@ -154,6 +168,18 @@ export default function Leaderboard() {
 						</TableBody>
 					</Table>
 				</TableContainer>
+				<Grid2 container justifyContent="center">
+					<Pagination
+						count={pageCount}
+						color="primary"
+						showFirstButton
+						showLastButton
+						page={page}
+						onChange={(e, newPage) => {
+							setPage(newPage);
+						}}
+					/>
+				</Grid2>
 			</Container>
 		</>
 	);

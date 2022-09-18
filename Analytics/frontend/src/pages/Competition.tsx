@@ -14,15 +14,7 @@ import timezone from "dayjs/plugin/timezone";
 
 export default function Competition() {
 	const { enqueueSnackbar } = useSnackbar();
-	const [competitions, setCompetitions] = React.useState<Competition[] | undefined>([
-		{
-			id: "0",
-			title: "Place Top 10 and win a prize",
-			details: "This is a competition",
-			start_date: "01/09/2022 12:00 AM",
-			end_date: "1/10/2022 12:00 AM",
-		},
-	]);
+	const [competitions, setCompetitions] = React.useState<Competition[] | undefined>();
 
 	const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
 	const [deleteDialogId, setDeleteDialogId] = React.useState<string | undefined>();
