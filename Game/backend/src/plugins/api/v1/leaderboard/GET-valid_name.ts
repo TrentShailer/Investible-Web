@@ -12,7 +12,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 		try {
 			return res.status(200).send(ValidateName(name));
 		} catch (error) {
-			console.log("Error occured at GET /api/v1/leaderboard/valid_name");
+			console.log("Error occurred at GET /api/v1/leaderboard/valid_name");
 			console.error(error);
 
 			return res.status(500).send();

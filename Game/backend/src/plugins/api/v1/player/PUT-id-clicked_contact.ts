@@ -18,7 +18,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				return res.status(200).send();
 			}
 		} catch (error) {
-			console.log("Error occured in PUT /api/v1/player/:id/clicked_contact");
+			console.log("Error occurred in PUT /api/v1/player/:id/clicked_contact");
 			console.error(error);
 
 			return res.status(500).send();

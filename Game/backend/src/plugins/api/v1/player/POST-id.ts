@@ -17,7 +17,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			);
 			return res.status(200).send();
 		} catch (error) {
-			console.log("Error occured in POST /api/v1/player/:id");
+			console.log("Error occurred in POST /api/v1/player/:id");
 			console.error(error);
 			return res.status(500).send();
 		}

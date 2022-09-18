@@ -21,7 +21,10 @@ fastify.register(fastifyPostgres, {
 
 if (process.env.SESSION_SECRET) {
 	fastify.register(fastifySession, {
-		cookie: { maxAge: 1000 * 60 * 60 * 1 },
+		cookie: {
+			maxAge: 1000 * 60 * 60 * 1,
+			secure: process.env.DEV ? false : true,
+		},
 		secret: process.env.SESSION_SECRET,
 		rolling: true,
 		store: new PGStore({

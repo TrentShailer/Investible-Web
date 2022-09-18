@@ -26,7 +26,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				return res.status(200).send(result.rows[0]);
 			}
 		} catch (error) {
-			console.log("Error occured at GET /api/v1/leaderboard/:player_id");
+			console.log("Error occurred at GET /api/v1/leaderboard/:player_id");
 			console.error(error);
 			return res.status(500).send();
 		}
