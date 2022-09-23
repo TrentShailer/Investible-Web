@@ -25,7 +25,6 @@ async function plugin(fastify: FastifyInstance, options: any) {
 					FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10;`
 			);
 
-			// Same as above but only for the top 10 percent of players
 			const { rows: topPlayersRows } = await fastify.pg.query<{
 				low_risk: number;
 				high_risk: number;
@@ -35,9 +34,15 @@ async function plugin(fastify: FastifyInstance, options: any) {
 					ROUND(AVG(low_risk_count))::INT AS low_risk,
 					ROUND(AVG(high_risk_count))::INT AS high_risk,
 					ROUND(AVG(insurance_count))::INT AS insurance
-					FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
-					ORDER BY portfolio_value DESC
-					LIMIT (SELECT COUNT(*) FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10) / 10;`
+					FROM
+						(SELECT
+							low_risk_count,
+							high_risk_count,
+							insurance_count
+							FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
+							ORDER BY portfolio_value DESC
+							LIMIT (SELECT COUNT(*) FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10) / 10
+							) AS top_players;`
 			);
 
 			if (allPlayersRows.length === 0 || topPlayersRows.length === 0) {

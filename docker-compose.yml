@@ -9,7 +9,7 @@ services:
       - database
     restart: always
   game_server:
-    image: trentshailer/investible-webserver:latest
+    image: trentshailer/investible-game:latest
     env_file:
       - ./.env
     ports:

@@ -14,9 +14,13 @@ async function plugin(fastify: FastifyInstance, options: any) {
 
 			const { rows: topPlayersRows } = await fastify.pg.query<{ turns: number }>(
 				`SELECT ROUND(AVG(turns))::INT AS turns
-					FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
-					ORDER BY turns DESC
-					LIMIT (SELECT COUNT(*) FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10) / 10;`
+					FROM
+						(SELECT
+							turns
+							FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
+							ORDER BY portfolio_value DESC
+							LIMIT (SELECT COUNT(*) FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10) / 10
+							) AS top_players;`
 			);
 
 			if (allPlayersRows.length === 0 || topPlayersRows.length === 0) {
