@@ -2,14 +2,8 @@ import { FastifyInstance } from "fastify";
 import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 
-type Result = {
-	start_date: string; // Formatted String
-	end_date: string; // Formatted String
-	details: string;
-};
-
 async function plugin(fastify: FastifyInstance, options: any) {
-	fastify.get("/ongoing", async (req, res) => {
+	fastify.get("/", async (req, res) => {
 		try {
 			const result = await fastify.pg.query<{
 				title: string;
@@ -34,7 +28,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 					.send({ start_date, end_date, details: row.details, title: row.title });
 			}
 		} catch (error) {
-			console.log("Error occurred at GET /api/v1/competition/ongoing");
+			console.log("Error occurred at GET /api/v1/competition");
 			console.error(error);
 
 			return res.status(500).send();
