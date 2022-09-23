@@ -11,29 +11,23 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				"SELECT game_end_reason::INT, COUNT(*)::INT FROM game WHERE turns > 10 AND DATE(timestamp) != CURRENT_DATE GROUP BY game_end_reason ORDER BY game_end_reason ASC;"
 			);
 
-			const unstableCount = rows.find((r) => r.game_end_reason === 0)?.count ?? 0;
-			const poorCount = rows.find((r) => r.game_end_reason === 1)?.count ?? 0;
-			const quitCount = rows.find((r) => r.game_end_reason === 2)?.count ?? 0;
-			const gaveUpCount = rows.find((r) => r.game_end_reason === 3)?.count ?? 0;
+			if (rows.length === 0) {
+				return res.status(200).send([
+					{ name: "Unstable", value: 25 },
+					{ name: "Poor", value: 25 },
+					{ name: "Quit to Main Menu", value: 25 },
+					{ name: "Gave Up", value: 25 },
+				]);
+			}
 
-			const total = unstableCount + poorCount + quitCount + gaveUpCount;
+			const total = rows.reduce((acc, row) => acc + row.count, 0);
 
-			const unstablePercent = (unstableCount / total) * 100;
-			const poorPercent = (poorCount / total) * 100;
-			const quitPercent = (quitCount / total) * 100;
-			const gaveUpPercent = (gaveUpCount / total) * 100;
+			const data = rows.map((row) => ({
+				name: ["Unstable", "Poor", "Quit to Main Menu", "Gave Up"][row.game_end_reason],
+				value: Number(((row.count / total) * 100).toFixed(1)),
+			}));
 
-			const result = [
-				{ name: "Unstable", value: Number(unstablePercent.toFixed(1)) },
-				{ name: "Poor", value: Number(poorPercent.toFixed(1)) },
-				{
-					name: "Quit to Main Menu",
-					value: Number(quitPercent.toFixed(1)),
-				},
-				{ name: "Gave Up", value: Number(gaveUpPercent.toFixed(1)) },
-			];
-
-			return res.status(200).send(result);
+			return res.status(200).send(data);
 		} catch (error) {
 			console.error(error);
 			return res.status(500).send();

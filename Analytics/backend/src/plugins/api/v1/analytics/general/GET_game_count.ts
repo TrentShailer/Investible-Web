@@ -32,6 +32,8 @@ async function plugin(fastify: FastifyInstance, options: any) {
 
 		try {
 			let result = [];
+
+			// Get the number of games played per day
 			const { rows: data } = await fastify.pg.query<{ timestamp: string; count: number }>(
 				`SELECT
 					DATE(timestamp)::DATE as timestamp,
@@ -42,6 +44,8 @@ async function plugin(fastify: FastifyInstance, options: any) {
 							DATE(timestamp) != CURRENT_DATE
 								GROUP BY DATE(timestamp);`
 			);
+
+			// Get the days in the last 21 days
 			const { rows: blankData } = await fastify.pg.query<{
 				timestamp: string;
 				count: number;
@@ -51,6 +55,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 					0 as count;`
 			);
 
+			// Merge the two arrays
 			for (const row of blankData) {
 				const gameRow = data.find(
 					(d) => d.timestamp.toString() === row.timestamp.toString()

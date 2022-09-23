@@ -5,7 +5,7 @@ interface Params {
 }
 
 interface Query {
-	page?: number;
+	page: number;
 }
 
 export default async function (fastify: FastifyInstance) {
@@ -17,45 +17,46 @@ export default async function (fastify: FastifyInstance) {
 				return;
 			}
 
-			try {
-				let page = request.query.page;
-				if (page === undefined) {
-					page = 1;
-				}
+			const { id } = request.params;
+			const { page } = request.query;
 
+			if (!id || !page) {
+				return reply.status(400).send();
+			}
+
+			try {
 				// Get the competition start and end date with id from the request
-				const { rows: competition } = await fastify.pg.query<{
+				const { rows: competitions } = await fastify.pg.query<{
 					start_date: string;
 					end_date: string;
 				}>("SELECT start_date, end_date FROM competition WHERE id = $1;", [
 					request.params.id,
 				]);
 
-				if (competition.length === 0) {
+				if (competitions.length === 0) {
 					return reply.status(404).send();
 				}
 
-				// Get the leaderboard for the competition with the page
-				const { rows } = await fastify.pg.query<{
-					id: string;
-					name: string;
-					portfolio_value: number;
-				}>(
-					"SELECT id, name, portfolio_value FROM leaderboard WHERE timestamp >= $1 AND timestamp <= $2 ORDER BY portfolio_value DESC LIMIT 10 OFFSET $3;",
-					[competition[0].start_date, competition[0].end_date, (page - 1) * 10]
+				const competition = competitions[0];
+
+				// Get the top 10 leaderboard entries for the competition with unique player_ids with pagination
+				// the leaderboard entry belongs to the competition if the timestamp of the entry is between the start and end date of the competition
+				const { rows } = await fastify.pg.query(
+					"SELECT DISTINCT ON (leaderboard.player_id) leaderboard.id, game.portfolio_value, player.name FROM leaderboard INNER JOIN game ON leaderboard.game_id = game.id INNER JOIN player ON leaderboard.player_id = player.id WHERE game.timestamp BETWEEN $1 AND $2 ORDER BY leaderboard.player_id DESC, portfolio_value DESC LIMIT 10 OFFSET $3",
+					[competition.start_date, competition.end_date, (page - 1) * 10]
 				);
 
-				// get the total number of leaderboard entries in the competition
-				const { rows: countRows } = await fastify.pg.query<{
-					count: number;
-				}>("SELECT COUNT(*) FROM leaderboard WHERE timestamp >= $1 AND timestamp <= $2;", [
-					competition[0].start_date,
-					competition[0].end_date,
-				]);
+				// Get the total number of rows
+				const { rows: countRows } = await fastify.pg.query(
+					"SELECT COUNT(DISTINCT leaderboard.player_id) FROM leaderboard INNER JOIN game ON leaderboard.game_id = game.id WHERE game.timestamp BETWEEN $1 AND $2;",
+					[competition.start_date, competition.end_date]
+				);
 				const count = countRows[0].count;
-				const pages = Math.ceil(count / 10);
 
-				return reply.status(200).send({ leaderboard: rows, pageCount: pages });
+				return reply.status(200).send({
+					leaderboard: rows,
+					pageCount: Math.ceil(count / 10),
+				});
 			} catch (err) {
 				console.error(err);
 				return reply.status(500).send();

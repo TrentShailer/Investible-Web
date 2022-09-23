@@ -6,6 +6,7 @@
 import { FastifyInstance } from "fastify";
 
 async function plugin(fastify: FastifyInstance, options: any) {
+	// Returns the distribution of blocks used by all players and top players as a percentage
 	fastify.get("/block_distribution", async (req, res) => {
 		if (!req.session.authenticated) {
 			return res.status(401).send();
@@ -24,67 +25,69 @@ async function plugin(fastify: FastifyInstance, options: any) {
 					FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10;`
 			);
 
+			// Same as above but only for the top 10 percent of players
 			const { rows: topPlayersRows } = await fastify.pg.query<{
 				low_risk: number;
 				high_risk: number;
 				insurance: number;
 			}>(
-				`
-				SELECT
+				`SELECT
 					ROUND(AVG(low_risk_count))::INT AS low_risk,
 					ROUND(AVG(high_risk_count))::INT AS high_risk,
 					ROUND(AVG(insurance_count))::INT AS insurance
-					FROM
-						(SELECT low_risk_count, high_risk_count, insurance_count FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
-							ORDER BY portfolio_value DESC
-							LIMIT ((
-								SELECT count(*) FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
-								) / 10))t;
-								`
+					FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
+					ORDER BY portfolio_value DESC
+					LIMIT (SELECT COUNT(*) FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10) / 10;`
 			);
+
+			if (allPlayersRows.length === 0 || topPlayersRows.length === 0) {
+				return res.status(200).send([
+					{
+						label: "Low Risk",
+						allPlayers: 0,
+						topPlayers: 0,
+					},
+					{
+						label: "High Risk",
+						allPlayers: 0,
+						topPlayers: 0,
+					},
+					{
+						label: "Insurance",
+						allPlayers: 0,
+						topPlayers: 0,
+					},
+				]);
+			}
+
+			const allPlayers = allPlayersRows[0];
+			const topPlayers = topPlayersRows[0];
 
 			const allPlayersTotal =
-				allPlayersRows[0].low_risk +
-				allPlayersRows[0].high_risk +
-				allPlayersRows[0].insurance;
+				allPlayers.low_risk + allPlayers.high_risk + allPlayers.insurance;
 			const topPlayersTotal =
-				topPlayersRows[0].low_risk +
-				topPlayersRows[0].high_risk +
-				topPlayersRows[0].insurance;
+				topPlayers.low_risk + topPlayers.high_risk + topPlayers.insurance;
 
-			const allPlayersLowRisk = Math.round(
-				(allPlayersRows[0].low_risk / allPlayersTotal) * 100
-			);
-			const allPlayersHighRisk = Math.round(
-				(allPlayersRows[0].high_risk / allPlayersTotal) * 100
-			);
-			const allPlayersInsurance = Math.round(
-				(allPlayersRows[0].insurance / allPlayersTotal) * 100
-			);
-
-			const topPlayersLowRisk = Math.round(
-				(topPlayersRows[0].low_risk / topPlayersTotal) * 100
-			);
-			const topPlayersHighRisk = Math.round(
-				(topPlayersRows[0].high_risk / topPlayersTotal) * 100
-			);
-			const topPlayersInsurance = Math.round(
-				(topPlayersRows[0].insurance / topPlayersTotal) * 100
-			);
-
-			return res.status(200).send([
-				{ label: "Low Risk", allPlayers: allPlayersLowRisk, topPlayers: topPlayersLowRisk },
+			const data = [
+				{
+					label: "Low Risk",
+					allPlayers: Number(((allPlayers.low_risk / allPlayersTotal) * 100).toFixed(1)),
+					topPlayers: Number(((topPlayers.low_risk / topPlayersTotal) * 100).toFixed(1)),
+				},
 				{
 					label: "High Risk",
-					allPlayers: allPlayersHighRisk,
-					topPlayers: topPlayersHighRisk,
+					allPlayers: Number(((allPlayers.high_risk / allPlayersTotal) * 100).toFixed(1)),
+					topPlayers: Number(((topPlayers.high_risk / topPlayersTotal) * 100).toFixed(1)),
 				},
 				{
 					label: "Insurance",
-					allPlayers: allPlayersInsurance,
-					topPlayers: topPlayersInsurance,
+
+					allPlayers: Number(((allPlayers.insurance / allPlayersTotal) * 100).toFixed(1)),
+					topPlayers: Number(((topPlayers.insurance / topPlayersTotal) * 100).toFixed(1)),
 				},
-			]);
+			];
+
+			return res.status(200).send(data);
 		} catch (error) {
 			console.error(error);
 			return res.status(500).send();

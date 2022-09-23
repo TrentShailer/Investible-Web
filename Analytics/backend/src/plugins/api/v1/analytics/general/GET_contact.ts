@@ -20,22 +20,21 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				"SELECT clicked_contact::BOOL, COUNT(*)::INT FROM player GROUP BY clicked_contact;"
 			);
 
-			const clickedContactCount = rows.find((row) => row.clicked_contact)?.count ?? 0;
-			const didntClickContactCount = rows.find((row) => !row.clicked_contact)?.count ?? 0;
+			if (rows.length === 0) {
+				return res.status(200).send([
+					{ name: "Clicked Contact", value: 50 },
+					{ name: "Didn't Click Contact", value: 50 },
+				]);
+			}
 
-			const total = clickedContactCount + didntClickContactCount;
+			const total = rows.reduce((acc, row) => acc + row.count, 0);
 
-			const clickedContactPercentage = Number(
-				((clickedContactCount / total) * 100).toFixed(1)
-			);
-			const didntClickContactPercentage = Number(
-				((didntClickContactCount / total) * 100).toFixed(1)
-			);
+			const data = rows.map((row) => ({
+				name: row.clicked_contact ? "Clicked Contact" : "Didn't Click Contact",
+				value: Number(((row.count / total) * 100).toFixed(1)),
+			}));
 
-			return res.status(200).send([
-				{ name: "Clicked Contact", value: clickedContactPercentage },
-				{ name: "Didn't Click Contact", value: didntClickContactPercentage },
-			]);
+			return res.status(200).send(data);
 		} catch (error) {
 			console.error(error);
 			return res.status(500).send();

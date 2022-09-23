@@ -13,15 +13,21 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			);
 
 			const { rows: topPlayersRows } = await fastify.pg.query<{ turns: number }>(
-				`
-				SELECT ROUND(AVG(turns))::INT AS turns FROM
-						(SELECT turns FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
-							ORDER BY portfolio_value DESC
-							LIMIT ((
-								SELECT count(*) FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
-								) / 10))t;
-								`
+				`SELECT ROUND(AVG(turns))::INT AS turns
+					FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10
+					ORDER BY turns DESC
+					LIMIT (SELECT COUNT(*) FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10) / 10;`
 			);
+
+			if (allPlayersRows.length === 0 || topPlayersRows.length === 0) {
+				return res.status(200).send([
+					{
+						label: "Average Number of Turns",
+						allPlayers: 0,
+						topPlayers: 0,
+					},
+				]);
+			}
 
 			return res.status(200).send([
 				{

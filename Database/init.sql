@@ -1,6 +1,6 @@
 CREATE TABLE "player" (
 	"id" UUID PRIMARY KEY NOT NULL,
-	"name" TEXT NOT NULL,
+	"name" TEXT,
 	"first_name" TEXT,
 	"last_name" TEXT,
 	"email" TEXT UNIQUE,

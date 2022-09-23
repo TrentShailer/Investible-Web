@@ -19,21 +19,24 @@ async function plugin(fastify: FastifyInstance, options: any) {
 
 		try {
 			const { rows } = await fastify.pg.query<Row>(
-				"SELECT mobile::BOOL, COUNT(*)::INT FROM player GROUP BY mobile;"
+				"SELECT mobile::BOOL, COUNT(*)::INT FROM device GROUP BY mobile;"
 			);
 
-			const mobileCount = rows.find((row) => row.mobile)?.count ?? 0;
-			const desktopCount = rows.find((row) => !row.mobile)?.count ?? 0;
+			if (rows.length === 0) {
+				return res.status(200).send([
+					{ name: "Mobile", value: 50 },
+					{ name: "Desktop", value: 50 },
+				]);
+			}
 
-			const total = mobileCount + desktopCount;
+			const total = rows.reduce((acc, row) => acc + row.count, 0);
 
-			const mobilePercentage = Number(((mobileCount / total) * 100).toFixed(1));
-			const desktopPercentage = Number(((desktopCount / total) * 100).toFixed(1));
+			const data = rows.map((row) => ({
+				name: row.mobile ? "Mobile" : "Desktop",
+				value: Number(((row.count / total) * 100).toFixed(1)),
+			}));
 
-			return res.status(200).send([
-				{ name: "Mobile", value: mobilePercentage },
-				{ name: "Desktop", value: desktopPercentage },
-			]);
+			return res.status(200).send(data);
 		} catch (error) {
 			console.error(error);
 			return res.status(500).send();
