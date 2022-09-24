@@ -4,6 +4,7 @@ import React from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { Edit, Visibility } from "@mui/icons-material";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -28,6 +29,11 @@ export default function CompetitionDisplay({
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 	const [TZ, setTZ] = React.useState<string>(dayjs.tz.guess());
+
+	const exportLeaderboard = (id: string) => {
+		window.open(`/api/v1/competition/${id}/export`, "_blank");
+	};
+
 	return (
 		<Accordion expanded={expanded === competition.id} onChange={handleChange(competition.id)}>
 			<AccordionSummary expandIcon={<ExpandMoreIcon />} id="panel1bh-header">
@@ -55,6 +61,15 @@ export default function CompetitionDisplay({
 								}}
 								startIcon={<Visibility />}>
 								View Leaderboard
+							</Button>
+						</Grid2>
+						<Grid2 sx={{ marginTop: 2 }} container justifyContent={"center"}>
+							<Button
+								onClick={() => {
+									exportLeaderboard(competition.id);
+								}}
+								startIcon={<FileDownloadIcon />}>
+								Export Leaderboard
 							</Button>
 						</Grid2>
 						<Grid2 sx={{ marginTop: 2 }} container justifyContent={"center"}>

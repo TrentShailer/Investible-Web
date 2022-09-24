@@ -12,8 +12,8 @@ export default async function (fastify: FastifyInstance) {
 		const { device_id } = request.params;
 		const { mobile } = request.body;
 
-		// If the device_id is not valid, return an error
-		if (!device_id || !mobile) {
+		// If incorrect parameters, return 400
+		if (!device_id || mobile === undefined) {
 			return reply.status(400).send();
 		}
 

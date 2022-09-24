@@ -10,7 +10,7 @@ export default async function (fastify: FastifyInstance) {
 	fastify.post<{ Body: Body }>("/", async (request, reply) => {
 		const { clicked_contact, device_id } = request.body;
 
-		if (!clicked_contact || !device_id) {
+		if (clicked_contact === undefined || !device_id) {
 			return reply.status(400).send();
 		}
 
@@ -18,7 +18,7 @@ export default async function (fastify: FastifyInstance) {
 			const { rows, rowCount } = await fastify.pg.query<{
 				player_id: string;
 			}>("SELECT player_id FROM device WHERE id = $1", [device_id]);
-			if (rows.length === 0) {
+			if (rowCount === 0) {
 				return reply.status(404).send();
 			}
 			let player_id = rows[0].player_id;
