@@ -103,15 +103,9 @@ export default function ViewDialog({ Close, Target }: Props) {
 							titles={["Timestamp", "Game Version"]}
 							values={[data.timestamp, data.game_version]}
 						/>
-						<Typography mt={1} color={grey[500]} variant="subtitle2">
-							These should match.
-						</Typography>
 						<InfoGrid
-							titles={["Leaderboard Portfolio Value", "Game Portfolio Value"]}
-							values={[
-								"$" + data.portfolio_value.toLocaleString("en-US"),
-								"$" + data.game_portfolio_value!.toLocaleString("en-US"),
-							]}
+							titles={["Portfolio Value", ""]}
+							values={["$" + data.portfolio_value.toLocaleString("en-US"), ""]}
 						/>
 						<InfoGrid
 							titles={["Turns", "Game Length"]}

@@ -29,65 +29,43 @@ export default async function plugin(fastify: FastifyInstance, options: any) {
 
 			const { start_date, end_date } = competitionRows[0];
 
-			// Select all data from the leaderboard
-			const { rows: leaderboardRows } = await fastify.pg.query<{
-				leaderboard_id: string;
-				timestamp: string;
-				agree_terms: boolean;
-				leaderboard_player_id: string;
-				name: string;
-				first_name: string;
-				last_name: string;
-				email: string;
-				mobile: string;
-				game_player_id: string;
-				game_version: string;
-				game_end_reason: string;
-				game_time: number;
-				positive_event_count: number;
-				negative_event_count: number;
-				portfolio_value: number;
-				insurance_count: number;
-				low_risk_count: number;
-				high_risk_count: number;
-				turns: number;
-			}>(
+			// Get the leaderboard entries for the competition with unique player_ids
+			const { rows: leaderboardIds } = await fastify.pg.query(
+				"SELECT DISTINCT ON (leaderboard.player_id) leaderboard.id FROM leaderboard INNER JOIN game ON leaderboard.game_id = game.id INNER JOIN player ON leaderboard.player_id = player.id ORDER BY leaderboard.player_id DESC, portfolio_value DESC;"
+			);
+
+			const { rows: leaderboardRows } = await fastify.pg.query(
 				`
 				SELECT
 					leaderboard.id AS leaderboard_id,
 					leaderboard.timestamp,
 					leaderboard.agree_terms,
-					leaderboard.player_id as leaderboard_player_id,
+					leaderboard.player_id AS leaderboard_player_id,
 					player.name,
 					player.first_name,
 					player.last_name,
 					player.email,
 					player.mobile,
-					game.player_id as game_player_id,
-					game.game_version,
-					game.game_end_reason,
-					game.game_time,
-					game.positive_event_count,
-					game.negative_event_count,
+					game.player_id AS game_player_id,
+					game.game_version AS version,
+					game_time,
 					game.portfolio_value,
-					game.insurance_count,
-					game.low_risk_count,
-					game.high_risk_count,
 					game.turns
 				FROM leaderboard
-				JOIN player ON leaderboard.player_id = player.id
-				JOIN game ON leaderboard.game_id = game.id
-				WHERE leaderboard.timestamp >= $1 AND leaderboard.timestamp <= $2
-				ORDER BY game.portfolio_value DESC;
+				INNER JOIN game ON leaderboard.game_id = game.id
+				INNER JOIN player ON leaderboard.player_id = player.id
+				WHERE leaderboard.id IN (${leaderboardIds.map((_, i) => `$${i + 1}`).join(", ")})
+				ORDER BY leaderboard.id DESC;
 			`,
-				[start_date, end_date]
+				leaderboardIds.map(({ id }) => id)
 			);
+
 			let csv =
-				"leaderboard_id,timestamp,agree_terms,leaderboard_player_id,name,first_name,last_name,email,mobile,game_player_id,game_version,game_end_reason,game_time,positive_event_count,negative_event_count,portfolio_value,insurance_count,low_risk_count,high_risk_count,turns\r";
+				"leaderboard_id,timestamp,agree_terms,leaderboard_player_id,game_player_id,name,first_name,last_name,email,mobile,version,game_time,portfolio_value,turns\r";
 
 			// Convert the data to CSV
 			for (const row of leaderboardRows) {
-				csv += `${row.leaderboard_id},${row.timestamp},${row.agree_terms},${row.leaderboard_player_id},${row.name},${row.first_name},${row.last_name},${row.email},${row.mobile},${row.game_player_id},${row.game_version},${row.game_end_reason},${row.game_time},${row.positive_event_count},${row.negative_event_count},${row.portfolio_value},${row.insurance_count},${row.low_risk_count},${row.high_risk_count},${row.turns}\r`;
+				csv += `${row.leaderboard_id},${row.timestamp},${row.agree_terms},${row.leaderboard_player_id},${row.game_player_id},"${row.name}","${row.first_name}","${row.last_name}","${row.email}","${row.mobile}",${row.version},${row.game_time},${row.portfolio_value},${row.turns}\r`;
 			}
 
 			// Send the CSV file
