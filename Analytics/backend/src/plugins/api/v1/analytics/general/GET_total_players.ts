@@ -8,7 +8,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 
 		try {
 			const { rows } = await fastify.pg.query<{ count: number | null }>(
-				`SELECT COUNT(*) as count FROM player;`
+				`SELECT COUNT(*) as count FROM device;`
 			);
 			const count = rows[0].count ?? 0;
 

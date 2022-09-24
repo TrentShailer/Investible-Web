@@ -22,6 +22,9 @@ export default function Login() {
 					if (error.status === "401" || error.response?.status === 401) {
 						setHelperText("Password is incorrect");
 						return;
+					} else if (error.status === "400" || error.response?.status === 400) {
+						setHelperText("Password is required");
+						return;
 					}
 				}
 				console.error(error);
