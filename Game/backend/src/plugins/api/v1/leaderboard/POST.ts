@@ -73,7 +73,7 @@ async function HandleDetails(fastify: FastifyInstance, body: Body) {
 		[device_id]
 	);
 	let existing_player_id: string | null = rows[0].player_id;
-	console.log("existing_player_id", existing_player_id);
+
 	// If there is a player_id associated with the device_id
 	if (existing_player_id !== null) {
 		// then we need to check if there is a different player_id
@@ -92,7 +92,6 @@ async function HandleDetails(fastify: FastifyInstance, body: Body) {
 		);
 		// If there is, then we need to merge all the players
 		if (player_rows.length !== 0) {
-			console.log("Merging players");
 			await MergePlayers(fastify, existing_player_id, player_rows);
 		}
 
@@ -125,7 +124,6 @@ async function HandleDetails(fastify: FastifyInstance, body: Body) {
 			[email, mobile.replace(/\s/g, "")]
 		);
 		if (rows.length !== 0) {
-			console.log("Found player with same email or mobile");
 			const player_id = rows[0].id;
 			await fastify.pg.query(`UPDATE device SET player_id = $1 WHERE id = $2;`, [
 				player_id,
@@ -144,7 +142,6 @@ async function HandleDetails(fastify: FastifyInstance, body: Body) {
 			]);
 			return;
 		} else {
-			console.log("Did not find player with same email or mobile");
 			// If there is not, then we can create a new player
 			const player_id = v4();
 
@@ -172,10 +169,6 @@ async function MergePlayers(
 	player_id: string,
 	player_ids: { id: string; clicked_contact: boolean }[]
 ) {
-	console.log("Merging players");
-	console.log("player_id", player_id);
-	console.log("player_ids", player_ids);
-
 	// Merge all the player_ids into player_id
 	for (let i = 0; i < player_ids.length; i++) {
 		const player_id_to_merge = player_ids[i].id;
@@ -240,9 +233,6 @@ export default async function (fastify: FastifyInstance) {
 		}
 
 		try {
-			console.log("Started submission");
-			console.log(request.body);
-
 			// Ensure device_id exists
 			const { rowCount: deviceExists } = await fastify.pg.query<{ id: string }>(
 				`
@@ -251,11 +241,8 @@ export default async function (fastify: FastifyInstance) {
 				[device_id]
 			);
 			if (deviceExists === 0) {
-				console.log("Device does not exist");
 				return reply.status(404).send();
 			}
-
-			console.log("Device exists");
 
 			// Ensure game_id exists
 			const { rowCount: gameExists } = await fastify.pg.query<{ id: string }>(
@@ -265,21 +252,14 @@ export default async function (fastify: FastifyInstance) {
 				[game_id]
 			);
 			if (gameExists === 0) {
-				console.log("Game does not exist");
 				return reply.status(404).send();
 			}
 
-			console.log("Game exists");
-
 			if (!first_name || !last_name || !email || !mobile || agree_terms === undefined) {
-				console.log("No Details");
 				await HandleNoDetails(fastify, request.body);
 			} else {
-				console.log("Details");
 				await HandleDetails(fastify, request.body);
 			}
-
-			console.log("Finished player_id");
 
 			// device now should have a player_id associated with it
 			// so we can get the player_id
@@ -290,21 +270,16 @@ export default async function (fastify: FastifyInstance) {
 			);
 			// couldn't find device
 			if (rowCount === 0) {
-				console.log("Device not found");
 				return reply.status(404).send();
 			}
-
-			console.log("Found device");
 
 			let player_id = rows[0].player_id;
 
 			if (player_id === null) {
-				console.log("Player_id is null");
 				// This should never happen
 				return reply.status(500).send();
 			}
 
-			console.log("Player_id is not null");
 			// Create a new leaderboard entry for the player
 			await fastify.pg.query(
 				"INSERT INTO leaderboard (id, player_id, game_id, agree_terms) VALUES ($1, $2, $3, $4);",
