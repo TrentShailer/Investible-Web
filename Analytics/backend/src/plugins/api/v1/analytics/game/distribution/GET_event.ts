@@ -16,7 +16,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				positive_event_count: number | null;
 				negative_event_count: number | null;
 			}>(
-				"SELECT AVG(positive_event_count)::INT as positive_event_count, AVG(negative_event_count)::INT as negative_event_count FROM game WHERE turns > 10;"
+				"SELECT AVG(positive_event_count)::INT as positive_event_count, AVG(negative_event_count)::INT as negative_event_count FROM game WHERE DATE(timestamp) != CURRENT_DATE AND turns > 10;"
 			);
 
 			const positiveEventCount = rows[0].positive_event_count ?? 0;

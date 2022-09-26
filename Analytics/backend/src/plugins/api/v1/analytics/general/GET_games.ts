@@ -12,7 +12,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 				`SELECT
 					ROUND(AVG(game_count))::INT as count
 					FROM
-						(SELECT COUNT(*) as game_count FROM game GROUP BY player_id)t;`
+						(SELECT COUNT(*) as game_count FROM game WHERE DATE(timestamp) != CURRENT_DATE GROUP BY player_id)t;`
 			);
 			const count = rows[0].count ?? 0;
 

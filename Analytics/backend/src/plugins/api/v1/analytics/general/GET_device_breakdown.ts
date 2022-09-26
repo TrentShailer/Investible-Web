@@ -19,7 +19,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 
 		try {
 			const { rows } = await fastify.pg.query<Row>(
-				"SELECT mobile::BOOL, COUNT(*)::INT FROM device GROUP BY mobile;"
+				"SELECT mobile, COUNT(*)::INT FROM device GROUP BY mobile;"
 			);
 
 			if (rows.length === 0) {
