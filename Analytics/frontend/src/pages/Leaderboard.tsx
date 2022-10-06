@@ -77,6 +77,14 @@ export default function Leaderboard() {
 							variant: "error",
 						});
 						return;
+					} else if (
+						(error.response?.status === 404 || error.response?.status === 404) &&
+						view === "competition"
+					) {
+						enqueueSnackbar("No competition ongoing.", {
+							variant: "warning",
+						});
+						return;
 					}
 				}
 
