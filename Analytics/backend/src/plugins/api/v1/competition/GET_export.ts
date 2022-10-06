@@ -31,31 +31,40 @@ export default async function plugin(fastify: FastifyInstance, options: any) {
 
 			// Get the leaderboard entries for the competition with unique player_ids
 			const { rows: leaderboardIds } = await fastify.pg.query(
-				"SELECT DISTINCT ON (leaderboard.player_id) leaderboard.id FROM leaderboard INNER JOIN game ON leaderboard.game_id = game.id INNER JOIN player ON leaderboard.player_id = player.id ORDER BY leaderboard.player_id DESC, portfolio_value DESC;"
+				`SELECT DISTINCT ON (leaderboard.player_id)
+					leaderboard.id
+				FROM leaderboard
+				INNER JOIN game ON leaderboard.game_id = game.id
+				INNER JOIN player ON leaderboard.player_id = player.id
+				WHERE game.timestamp BETWEEN $1 AND $2
+				ORDER BY leaderboard.player_id DESC;`,
+				[start_date, end_date]
 			);
 
 			const { rows: leaderboardRows } = await fastify.pg.query(
 				`
-				SELECT
-					leaderboard.id AS leaderboard_id,
-					leaderboard.timestamp,
-					leaderboard.agree_terms,
-					leaderboard.player_id AS leaderboard_player_id,
-					player.name,
-					player.first_name,
-					player.last_name,
-					player.email,
-					player.mobile,
-					game.player_id AS game_player_id,
-					game.game_version AS version,
-					game_time,
-					game.portfolio_value,
-					game.turns
-				FROM leaderboard
-				INNER JOIN game ON leaderboard.game_id = game.id
-				INNER JOIN player ON leaderboard.player_id = player.id
-				WHERE leaderboard.id IN (${leaderboardIds.map((_, i) => `$${i + 1}`).join(", ")})
-				ORDER BY leaderboard.id DESC;
+				SELECT * FROM
+					(SELECT
+						leaderboard.id AS leaderboard_id,
+						leaderboard.timestamp,
+						leaderboard.agree_terms,
+						leaderboard.player_id AS leaderboard_player_id,
+						player.name,
+						player.first_name,
+						player.last_name,
+						player.email,
+						player.mobile,
+						game.player_id AS game_player_id,
+						game.game_version AS version,
+						game_time,
+						game.portfolio_value,
+						game.turns
+					FROM leaderboard
+					INNER JOIN game ON leaderboard.game_id = game.id
+					INNER JOIN player ON leaderboard.player_id = player.id
+					WHERE leaderboard.id IN (${leaderboardIds.map((_, i) => `$${i + 1}`).join(", ")})
+					ORDER BY leaderboard.id DESC)t
+				ORDER BY portfolio_value DESC;
 			`,
 				leaderboardIds.map(({ id }) => id)
 			);

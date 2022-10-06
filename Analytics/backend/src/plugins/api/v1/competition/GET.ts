@@ -16,7 +16,9 @@ export default async function (fastify: FastifyInstance) {
 				details: string;
 				start_date: string;
 				end_date: string;
-			}>("SELECT id, title, details, start_date, end_date FROM competition;");
+			}>(
+				"SELECT id, title, details, start_date, end_date FROM competition ORDER BY end_date DESC;"
+			);
 
 			let competitions = rows.map((row) => {
 				return {

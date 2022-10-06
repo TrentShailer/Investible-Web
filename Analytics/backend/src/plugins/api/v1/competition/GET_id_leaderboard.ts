@@ -42,7 +42,17 @@ export default async function (fastify: FastifyInstance) {
 				// Get the top 10 leaderboard entries for the competition with unique player_ids with pagination
 				// the leaderboard entry belongs to the competition if the timestamp of the entry is between the start and end date of the competition
 				const { rows } = await fastify.pg.query(
-					"SELECT DISTINCT ON (leaderboard.player_id) leaderboard.id, game.portfolio_value, player.name FROM leaderboard INNER JOIN game ON leaderboard.game_id = game.id INNER JOIN player ON leaderboard.player_id = player.id WHERE game.timestamp BETWEEN $1 AND $2 ORDER BY leaderboard.player_id DESC, portfolio_value DESC LIMIT 10 OFFSET $3",
+					`SELECT * FROM
+						(SELECT DISTINCT ON (leaderboard.player_id)
+							leaderboard.id,
+							game.portfolio_value,
+							player.name
+						FROM leaderboard INNER JOIN game ON leaderboard.game_id = game.id
+						INNER JOIN player ON leaderboard.player_id = player.id
+						WHERE game.timestamp BETWEEN $1 AND $2
+						ORDER BY leaderboard.player_id DESC)t
+					ORDER BY portfolio_value DESC
+					LIMIT 10 OFFSET $3`,
 					[competition.start_date, competition.end_date, (page - 1) * 10]
 				);
 

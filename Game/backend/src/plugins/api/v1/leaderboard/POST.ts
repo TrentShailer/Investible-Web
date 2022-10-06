@@ -13,164 +13,124 @@ interface Body {
 	game_id: string;
 }
 
-async function HandleNoDetails(fastify: FastifyInstance, body: Body) {
-	// If no details are provided, then we must determine same player
-	// only off of the player_id associated with the device_id
-	const { device_id, game_id, name } = body;
+type Player = {
+	id: string;
+	name: string;
+	first_name: string | null;
+	last_name: string | null;
+	email: string | null;
+	mobile: string | null;
+	clicked_contact: boolean | null;
+};
 
-	// Try find the player_id associated with the device_id
+async function CheckMatch(fastify: FastifyInstance, body: Body): Promise<Player[] | null> {
+	const { first_name, last_name, email, mobile } = body;
+
 	const { rows } = await fastify.pg.query(
 		`
-		SELECT player_id
-		FROM device
-		WHERE id = $1
+		SELECT
+			id,
+			name,
+			first_name,
+			last_name,
+			email,
+			mobile,
+			clicked_contact
+		FROM
+			player
+		WHERE
+			(LOWER(first_name) = $1
+			AND LOWER(last_name) = $2)
+			OR LOWER(email) = $3
+			OR mobile = $4
 		`,
-		[device_id]
+		[first_name.toLowerCase(), last_name.toLowerCase(), email.toLowerCase(), mobile]
 	);
 
-	const existing_player_id: string | null = rows[0].player_id;
-
-	// If no player_id is found, then we can create a new player
-	if (existing_player_id === null || existing_player_id === undefined) {
-		const player_id = v4();
-		await fastify.pg.query(`INSERT INTO player (id, name) VALUES ($1, $2);`, [player_id, name]);
-		// Update device with player_id
-		await fastify.pg.query(`UPDATE device SET player_id = $1 WHERE id = $2;`, [
-			player_id,
-			device_id,
-		]);
-
-		// Update game with player_id
-		await fastify.pg.query(`UPDATE game SET player_id = $1 WHERE id = $2;`, [
-			player_id,
-			game_id,
-		]);
-		return;
-	} else {
-		// If a player_id is found, then we can update the player
-		const player_id = rows[0].player_id;
-		await fastify.pg.query(`UPDATE player SET name = $1 WHERE id = $2;`, [name, player_id]);
-
-		// Update game with player_id
-		await fastify.pg.query(`UPDATE game SET player_id = $1 WHERE id = $2;`, [
-			player_id,
-			game_id,
-		]);
-		return;
+	if (rows.length === 0) {
+		return null;
 	}
+
+	return rows;
 }
 
+// No Details & No Player ID -> Create new player
+async function NoDetailsNoPlayerID(fastify: FastifyInstance, body: Body) {
+	const { device_id, game_id, name } = body;
+	const player_id = v4();
+	await fastify.pg.query(`INSERT INTO player (id, name) VALUES ($1, $2);`, [player_id, name]);
+
+	await fastify.pg.query(`UPDATE device SET player_id = $1 WHERE id = $2;`, [
+		player_id,
+		device_id,
+	]);
+
+	await fastify.pg.query(`UPDATE game SET player_id = $1 WHERE id = $2;`, [player_id, game_id]);
+	return;
+}
+
+// No Details & Player ID -> Update player
+async function NoDetailsPlayerID(fastify: FastifyInstance, body: Body, player_id: string) {
+	const { device_id, game_id, name } = body;
+	await fastify.pg.query(`UPDATE player SET name = $1 WHERE id = $2;`, [name, player_id]);
+	// Update game
+	await fastify.pg.query(`UPDATE game SET player_id = $1 WHERE id = $2;`, [player_id, game_id]);
+	return;
+}
+
+// Details -> Check for a matching players -> Merge players else Create Player
 async function HandleDetails(fastify: FastifyInstance, body: Body) {
-	const { device_id, game_id, name, first_name, last_name, email, mobile } = body;
-
-	// Try find the player_id associated with the device_id
-	const { rows } = await fastify.pg.query<{ player_id: string }>(
-		`
-		SELECT player_id
-		FROM device
-		WHERE id = $1
-		`,
-		[device_id]
-	);
-	let existing_player_id: string | null = rows[0].player_id;
-
-	// If there is a player_id associated with the device_id
-	if (existing_player_id !== null) {
-		// then we need to check if there is a different player_id
-		// with the same email or mobile number
-		const { rows: player_rows } = await fastify.pg.query<{
-			id: string;
-			clicked_contact: boolean;
-		}>(
-			`
-			SELECT id, clicked_contact
-			FROM player
-			WHERE (email = $1 OR mobile = $2)
-			AND id != $3
-			`,
-			[email, mobile.replace(/\s/g, ""), existing_player_id]
-		);
-		// If there is, then we need to merge all the players
-		if (player_rows.length !== 0) {
-			await MergePlayers(fastify, existing_player_id, player_rows);
-		}
-
-		// then we can update the player
-		await fastify.pg.query(
-			`
-				UPDATE player
-				SET name = $1, first_name = $2, last_name = $3, email = $4, mobile = $5
-				WHERE id = $6
-				`,
-			[name, first_name, last_name, email, mobile.replace(/\s/g, ""), existing_player_id]
-		);
-		// Update game with player_id
-		await fastify.pg.query(`UPDATE game SET player_id = $1 WHERE id = $2;`, [
-			existing_player_id,
-			game_id,
-		]);
-		return;
+	const matches = await CheckMatch(fastify, body);
+	if (matches === null) {
+		CreatePlayerDetails(fastify, body);
 	} else {
-		// If there is no player_id associated with the device_id
-		// then we can first check if there is a player with the same
-		// email or mobile number, and if there is, then we can update
-		// the player_id associated with the device_id
-		const { rows } = await fastify.pg.query<{ id: string }>(
-			`
-			SELECT id
-			FROM player
-			WHERE email = $1 OR mobile = $2
-			`,
-			[email, mobile.replace(/\s/g, "")]
-		);
-		if (rows.length !== 0) {
-			const player_id = rows[0].id;
-			await fastify.pg.query(`UPDATE device SET player_id = $1 WHERE id = $2;`, [
-				player_id,
-				device_id,
-			]);
-			await fastify.pg.query(
-				`UPDATE player
-				SET name = $1, first_name = $2, last_name = $3, email = $4, mobile = $5
-				WHERE id = $6`,
-				[name, first_name, last_name, email, mobile.replace(/\s/g, ""), player_id]
-			);
-			// Update game with player_id
-			await fastify.pg.query(`UPDATE game SET player_id = $1 WHERE id = $2;`, [
-				player_id,
-				game_id,
-			]);
-			return;
+		if (matches.length === 1) {
+			await UpdatePlayerDetails(fastify, body, matches[0].id);
 		} else {
-			// If there is not, then we can create a new player
-			const player_id = v4();
-
-			await fastify.pg.query(
-				`INSERT INTO player (id, name, first_name, last_name, email, mobile)
-				VALUES ($1, $2, $3, $4, $5, $6);`,
-				[player_id, name, first_name, last_name, email, mobile.replace(/\s/g, "")]
-			);
-			await fastify.pg.query(`UPDATE device SET player_id = $1 WHERE id = $2;`, [
-				player_id,
-				device_id,
-			]);
-			// Update game with player_id
-			await fastify.pg.query(`UPDATE game SET player_id = $1 WHERE id = $2;`, [
-				player_id,
-				game_id,
-			]);
-			return;
+			// Merge players
+			await MergePlayers(fastify, matches);
+			await UpdatePlayerDetails(fastify, body, matches[0].id);
 		}
 	}
 }
 
-async function MergePlayers(
-	fastify: FastifyInstance,
-	player_id: string,
-	player_ids: { id: string; clicked_contact: boolean }[]
-) {
+async function UpdatePlayerDetails(fastify: FastifyInstance, body: Body, player_id: string) {
+	const { device_id, game_id, name, first_name, last_name, email, mobile } = body;
+	await fastify.pg.query(
+		`UPDATE player SET name = $1, first_name = $2, last_name = $3, email = $4, mobile = $5 WHERE id = $6;`,
+		[name, first_name, last_name, email, mobile, player_id]
+	);
+
+	await fastify.pg.query(`UPDATE device SET player_id = $1 WHERE id = $2;`, [
+		player_id,
+		device_id,
+	]);
+
+	await fastify.pg.query(`UPDATE game SET player_id = $1 WHERE id = $2;`, [player_id, game_id]);
+	return;
+}
+
+async function CreatePlayerDetails(fastify: FastifyInstance, body: Body) {
+	const { device_id, game_id, name, first_name, last_name, email, mobile } = body;
+	const player_id = v4();
+	await fastify.pg.query(
+		`INSERT INTO player (id, name, first_name, last_name, email, mobile) VALUES ($1, $2, $3, $4, $5, $6);`,
+		[player_id, name, first_name, last_name, email, mobile]
+	);
+
+	await fastify.pg.query(`UPDATE device SET player_id = $1 WHERE id = $2;`, [
+		player_id,
+		device_id,
+	]);
+
+	await fastify.pg.query(`UPDATE game SET player_id = $1 WHERE id = $2;`, [player_id, game_id]);
+	return;
+}
+
+async function MergePlayers(fastify: FastifyInstance, player_ids: Player[]) {
+	const { id: player_id } = player_ids[0];
 	// Merge all the player_ids into player_id
-	for (let i = 0; i < player_ids.length; i++) {
+	for (let i = 1; i < player_ids.length; i++) {
 		const player_id_to_merge = player_ids[i].id;
 		const clicked_contact = player_ids[i].clicked_contact;
 		// Merge all the games
@@ -234,9 +194,12 @@ export default async function (fastify: FastifyInstance) {
 
 		try {
 			// Ensure device_id exists
-			const { rowCount: deviceExists } = await fastify.pg.query<{ id: string }>(
+			const { rows: device_rows, rowCount: deviceExists } = await fastify.pg.query<{
+				id: string;
+				player_id: string;
+			}>(
 				`
-				SELECT id FROM device WHERE id = $1;
+				SELECT id, player_id FROM device WHERE id = $1;
 				`,
 				[device_id]
 			);
@@ -255,8 +218,14 @@ export default async function (fastify: FastifyInstance) {
 				return reply.status(404).send();
 			}
 
+			const { player_id: existing_player_id } = device_rows[0];
+
 			if (!first_name || !last_name || !email || !mobile || agree_terms === undefined) {
-				await HandleNoDetails(fastify, request.body);
+				if (existing_player_id !== null) {
+					await NoDetailsPlayerID(fastify, request.body, existing_player_id);
+				} else {
+					await NoDetailsNoPlayerID(fastify, request.body);
+				}
 			} else {
 				await HandleDetails(fastify, request.body);
 			}
