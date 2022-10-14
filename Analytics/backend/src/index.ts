@@ -1,3 +1,4 @@
+require("dotenv").config();
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import fastifyPostgres from "@fastify/postgres";
@@ -16,7 +17,7 @@ const fastify = Fastify({
 fastify.register(fastifyCookie, {});
 
 fastify.register(fastifyPostgres, {
-	connectionString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@database:5432/${process.env.POSTGRES_DATABASE}`,
+	connectionString: process.env.DATABASE_URL,
 });
 
 if (process.env.SESSION_SECRET) {
@@ -28,7 +29,7 @@ if (process.env.SESSION_SECRET) {
 		secret: process.env.SESSION_SECRET,
 		rolling: true,
 		store: new PGStore({
-			conString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@database:5432/${process.env.POSTGRES_DATABASE}`,
+			conString: process.env.DATABASE_URL,
 		}) as any,
 	});
 } else {
@@ -59,7 +60,7 @@ fastify.get("/login", async (req, res) => {
 fastify.register(fastifyAutoload, { dir: path.join(__dirname, "plugins") });
 
 // Start Server
-fastify.listen({ port: 8080, host: "0.0.0.0" }, (err, address) => {
+fastify.listen({ port: process.env.PORT, host: "0.0.0.0" }, (err, address) => {
 	if (err) {
 		console.error(err);
 		process.exit(1);
