@@ -6,7 +6,6 @@ ENV NODE_ENV=production
 COPY . .
 
 RUN corepack enable
-RUN yarn set version 3.2.4
 RUN yarn install --immutable
 
 EXPOSE 8080
