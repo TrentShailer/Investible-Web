@@ -27,5 +27,6 @@
 		"fastify": "^4.8.1",
 		"pg": "^8.8.0",
 		"uuid": "^8.3.2"
-	}
+	},
+	"packageManager": "yarn@3.2.4"
 }

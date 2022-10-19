@@ -30,5 +30,6 @@
 		"build": "tsc",
 		"dev": "nodemon dist/index",
 		"start": "node dist/index"
-	}
+	},
+	"packageManager": "yarn@3.2.4"
 }
