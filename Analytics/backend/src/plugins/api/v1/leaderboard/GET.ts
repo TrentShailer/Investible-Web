@@ -27,7 +27,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 					FROM leaderboard
 					INNER JOIN game ON leaderboard.game_id = game.id
 					INNER JOIN player ON leaderboard.player_id = player.id
-					ORDER BY leaderboard.player_id DESC)t
+					ORDER BY leaderboard.player_id DESC, game.portfolio_value DESC)t
 				ORDER BY portfolio_value DESC
 				LIMIT 10 OFFSET $1`,
 				[(page - 1) * 10]
