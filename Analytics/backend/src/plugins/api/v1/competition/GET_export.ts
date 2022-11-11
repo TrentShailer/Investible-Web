@@ -37,7 +37,7 @@ export default async function plugin(fastify: FastifyInstance, options: any) {
 				INNER JOIN game ON leaderboard.game_id = game.id
 				INNER JOIN player ON leaderboard.player_id = player.id
 				WHERE game.timestamp BETWEEN $1 AND $2
-				ORDER BY leaderboard.player_id DESC;`,
+				ORDER BY leaderboard.player_id DESC, game.portfolio_value DESC;`,
 				[start_date, end_date]
 			);
 
