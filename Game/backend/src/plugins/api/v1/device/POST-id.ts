@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { v4 } from "uuid";
 
 interface Body {
 	mobile: boolean;
@@ -24,10 +25,18 @@ export default async function (fastify: FastifyInstance) {
 			if (rowCount !== 0) {
 				return reply.status(409).send();
 			}
-			await fastify.pg.query("INSERT INTO device (id, mobile) VALUES ($1, $2)", [
-				device_id,
-				mobile,
+
+			// Create default player
+			const player_id = v4();
+			await fastify.pg.query("INSERT INTO player (id, name) VALUES ($1, $2);", [
+				player_id,
+				"Default Player",
 			]);
+
+			await fastify.pg.query(
+				"INSERT INTO device (id, mobile, player_id) VALUES ($1, $2, $3)",
+				[device_id, mobile, player_id]
+			);
 			return reply.status(201).send();
 		} catch (error) {
 			console.log("Error occurred at POST /api/v1/device/:device_id");

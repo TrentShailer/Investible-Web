@@ -40,8 +40,7 @@ async function plugin(fastify: FastifyInstance, options: any) {
 					COUNT(*)::INT
 						FROM game WHERE
 							timestamp > CURRENT_DATE - interval '21 day' AND
-							turns > 10 AND
-							DATE(timestamp) != CURRENT_DATE
+							turns > 10
 								GROUP BY DATE(timestamp);`
 			);
 

@@ -7,6 +7,7 @@ import connectPgSimple from "connect-pg-simple";
 import fastifyCookie, { FastifyCookieOptions } from "@fastify/cookie";
 import path from "path";
 import fastifyAutoload from "@fastify/autoload";
+import { v4 } from "uuid";
 
 const PGStore = connectPgSimple(fastifySession as any);
 
@@ -60,13 +61,14 @@ fastify.get("/login", async (req, res) => {
 fastify.register(fastifyAutoload, { dir: path.join(__dirname, "plugins") });
 
 // Start Server
-fastify.listen({ port: process.env.PORT, host: "0.0.0.0" }, (err, address) => {
+fastify.listen({ port: process.env.PORT, host: "0.0.0.0" }, async (err, address) => {
 	if (err) {
 		console.error(err);
 		process.exit(1);
 	}
 	console.log(`Server listening at ${address}`);
-	FixNegativeGameLength();
+	await FixNegativeGameLength();
+	await FixNoPlayer();
 });
 
 async function FixNegativeGameLength() {
@@ -76,5 +78,24 @@ async function FixNegativeGameLength() {
 		const { id, game_time } = row;
 		const fixedGameTime = Math.abs(game_time);
 		await fastify.pg.query("UPDATE game SET game_time = $1 WHERE id = $2", [fixedGameTime, id]);
+	}
+}
+
+async function FixNoPlayer() {
+	const { rows } = await fastify.pg.query(
+		"SELECT id as device_id FROM device WHERE player_id IS NULL;"
+	);
+
+	for (const row of rows) {
+		const { device_id } = row;
+		const player_id = v4();
+		await fastify.pg.query("INSERT INTO player (id, name) VALUES ($1, $2);", [
+			player_id,
+			"Default Player",
+		]);
+		await fastify.pg.query("UPDATE device SET player_id = $1 WHERE id = $2", [
+			player_id,
+			device_id,
+		]);
 	}
 }
