@@ -12,13 +12,19 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			); */
 			// as above but ignore outliers
 			const { rows: binSizeRows } = await fastify.pg.query<{ bin_size: number | null }>(
-				"SELECT ROUND(STDDEV(game_time)/4)::INT AS bin_size FROM game WHERE turns > 10 AND DATE(timestamp) != CURRENT_DATE AND game_time < 5 * (SELECT AVG(game_time) FROM game WHERE turns > 10 AND DATE(timestamp) != CURRENT_DATE);"
+				`SELECT
+					ROUND(STDDEV(game_time)/4)::INT AS bin_size
+				FROM game
+				WHERE
+					turns > 10 AND
+					DATE(timestamp) != CURRENT_DATE AND
+					game_time < 5 * (SELECT AVG(game_time) FROM game WHERE turns > 10 AND DATE(timestamp) != CURRENT_DATE);`
 			);
 			let binSize = Number((binSizeRows[0].bin_size ?? 1).toPrecision(2));
 			if (binSize < 1) binSize = 1;
 
 			const { rows: data } = await fastify.pg.query<{ bin_floor: number; count: number }>(
-				`SELECT FLOOR(game_time/${binSize})*${binSize}::INT AS bin_floor, count(*)::INT FROM game WHERE turns > 10 AND DATE(timestamp) != CURRENT_DATE GROUP BY 1 ORDER BY 1;`
+				`SELECT FLOOR(game_time/${binSize})*${binSize}::INT AS bin_floor, count(*)::INT FROM game WHERE turns > 10 AND DATE(timestamp) != CURRENT_DATE AND game_time < 5 * (SELECT AVG(game_time) FROM game WHERE turns > 10 AND DATE(timestamp) != CURRENT_DATE) GROUP BY 1 ORDER BY 1;`
 			);
 
 			const { rows: blankData, rowCount } = await fastify.pg.query<{

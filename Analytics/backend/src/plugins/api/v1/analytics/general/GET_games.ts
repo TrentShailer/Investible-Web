@@ -11,8 +11,13 @@ async function plugin(fastify: FastifyInstance, options: any) {
 			const { rows } = await fastify.pg.query<{ count: number | null }>(
 				`SELECT
 					ROUND(AVG(game_count))::INT as count
-					FROM
-						(SELECT COUNT(*) as game_count FROM game WHERE GROUP BY player_id)t;`
+				FROM
+					(
+						SELECT COUNT(*) as game_count
+						FROM game
+						WHERE player_id IS NOT NULL
+						GROUP BY player_id
+					)t;`
 			);
 			const count = rows[0].count ?? 0;
 
