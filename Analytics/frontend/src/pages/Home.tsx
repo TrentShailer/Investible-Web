@@ -6,6 +6,7 @@ import Game from "./analytics/Game";
 import General from "./analytics/General";
 import Leaderboard from "./Leaderboard";
 import Competition from "./Competition";
+import Manual_Entry from "./Manual_Entry";
 
 export default function Home() {
 	const [page, setPage] = useState<Page>();
@@ -56,6 +57,9 @@ export default function Home() {
 				break;
 			case Page.gameAnalytics:
 				setBody(<Game />);
+				break;
+			case Page.manualEntry:
+				setBody(<Manual_Entry />);
 				break;
 		}
 	}, [page]);

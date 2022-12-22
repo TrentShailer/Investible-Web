@@ -14,6 +14,7 @@ enum Page {
 	leaderboard,
 	generalAnalytics,
 	gameAnalytics,
+	manualEntry,
 }
 
 export default function MenuBar({ page, onChange }: Props) {
@@ -44,6 +45,7 @@ export default function MenuBar({ page, onChange }: Props) {
 					<Tab label="Leaderboard" />
 					<Tab label="General Analytics" />
 					<Tab label="Game Analytics" />
+					<Tab label="Manual Entry" />
 				</Tabs>
 				<Button onClick={logout} startIcon={<Logout />} color="error">
 					Logout

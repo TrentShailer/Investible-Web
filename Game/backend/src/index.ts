@@ -6,6 +6,7 @@ import fastifyFormbody from "@fastify/formbody";
 import fastifyAutoload from "@fastify/autoload";
 import cors from "@fastify/cors";
 import path from "path";
+import fs from "fs";
 
 const fastify = Fastify({
 	logger: false,
@@ -42,4 +43,15 @@ fastify.listen({ port: process.env.PORT, host: "0.0.0.0" }, (err, address) => {
 		process.exit(1);
 	}
 	console.log(`Server listening at ${address}`);
+	// if file "fixed_constraint" doesn't exist, create it
+	if (!fs.existsSync("fixed_constraint")) {
+		fs.writeFileSync("fixed_constraint", "true");
+		fix_constraint();
+	}
 });
+
+async function fix_constraint() {
+	await fastify.pg.query(
+		`ALTER TABLE device DROP CONSTRAINT device_player_id_fkey, ADD CONSTRAINT device_player_id_fkey FOREIGN KEY (player_id) REFERENCES player(id) ON DELETE SET NULL;`
+	);
+}
